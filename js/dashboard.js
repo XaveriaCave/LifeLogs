@@ -79,6 +79,10 @@ function switchView(view, btn) {
   if (btn) btn.classList.add('active');
   activeView = view;
 
+  // Sync mobile bottom nav
+  document.querySelectorAll('.mob-nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(`mnav-${view}`)?.classList.add('active');
+
   const titles = {
     timeline: '// TIMELINE_ROADMAP',
     scenarios: '// SCENARIO_EXPLORER',
@@ -469,4 +473,48 @@ function editProfile() {
     localStorage.setItem('lifelogs_edit_mode', '1');
     window.location.href = 'index.html';
   }, 450);
+}
+
+// ─── MOBILE SIDEBAR ──────────────────────────────────────────────────────────
+
+function toggleSidebar() {
+  const sidebar  = document.getElementById('dashboard').querySelector('.db-sidebar');
+  const backdrop = document.getElementById('sb-backdrop');
+  const burger   = document.getElementById('mob-hamburger');
+  const isOpen   = sidebar.classList.contains('open');
+  isOpen ? closeSidebar() : openSidebar();
+}
+
+function openSidebar() {
+  const sidebar  = document.getElementById('dashboard').querySelector('.db-sidebar');
+  const backdrop = document.getElementById('sb-backdrop');
+  const burger   = document.getElementById('mob-hamburger');
+  sidebar.classList.add('open');
+  backdrop.classList.add('visible');
+  burger.classList.add('open');
+  document.body.style.overflow = 'hidden'; // prevent scroll behind
+}
+
+function closeSidebar() {
+  const sidebar  = document.getElementById('dashboard').querySelector('.db-sidebar');
+  const backdrop = document.getElementById('sb-backdrop');
+  const burger   = document.getElementById('mob-hamburger');
+  sidebar.classList.remove('open');
+  backdrop.classList.remove('visible');
+  burger.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// ─── MOBILE BOTTOM NAV ────────────────────────────────────────────────────────
+
+function mobNav(view, btn) {
+  // Sync bottom nav active state
+  document.querySelectorAll('.mob-nav-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  // Sync sidebar nav
+  document.querySelectorAll('.sb-nav-item').forEach(b => b.classList.remove('active'));
+  document.getElementById(`nav-${view}`)?.classList.add('active');
+  // Switch the view
+  switchView(view, null);
+  closeSidebar();
 }

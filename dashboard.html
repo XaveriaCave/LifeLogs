@@ -13,6 +13,38 @@
   <div class="scanlines"></div>
   <div class="page-wipe" id="page-wipe"></div>
 
+  <!-- Mobile hamburger -->
+  <button class="mob-hamburger" id="mob-hamburger" onclick="toggleSidebar()" aria-label="Toggle menu">
+    <span></span><span></span><span></span>
+  </button>
+
+  <!-- Sidebar backdrop -->
+  <div class="sb-backdrop" id="sb-backdrop" onclick="closeSidebar()"></div>
+
+  <!-- Bottom nav (mobile only) -->
+  <nav class="mob-bottom-nav" id="mob-bottom-nav">
+    <button class="mob-nav-btn active" id="mnav-timeline" onclick="mobNav('timeline',this)">
+      <span class="mob-nav-icon">🗺️</span>
+      <span class="mob-nav-label">TIMELINE</span>
+    </button>
+    <button class="mob-nav-btn" id="mnav-scenarios" onclick="mobNav('scenarios',this)">
+      <span class="mob-nav-icon">🔀</span>
+      <span class="mob-nav-label">PATHS</span>
+    </button>
+    <button class="mob-nav-btn" id="mnav-financials" onclick="mobNav('financials',this)">
+      <span class="mob-nav-icon">📊</span>
+      <span class="mob-nav-label">MONEY</span>
+    </button>
+    <button class="mob-nav-btn" id="mnav-action" onclick="mobNav('action',this)">
+      <span class="mob-nav-icon">📋</span>
+      <span class="mob-nav-label">PLAN</span>
+    </button>
+    <button class="mob-nav-btn" id="mnav-compare" onclick="mobNav('compare',this)">
+      <span class="mob-nav-icon">⚖️</span>
+      <span class="mob-nav-label">COMPARE</span>
+    </button>
+  </nav>
+
   <div id="dashboard">
 
     <!-- ══════════════════════════════════════════
