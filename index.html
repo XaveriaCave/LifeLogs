@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LifeLogs // CREATE YOUR CHARACTER</title>
+  <meta name="description" content="AI-Powered Life Planning & Decision Engine. Build your character. Simulate your futures." />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/character.css" />
+</head>
+<body>
+  <canvas id="particle-canvas"></canvas>
+  <div class="scanlines"></div>
+  <div class="grid-overlay"></div>
+  <div class="page-wipe" id="page-wipe"></div>
+
+  <div id="app">
+
+    <!-- ══════════════════════════════════════════
+         BOOT SCREEN
+    ══════════════════════════════════════════ -->
+    <div id="boot-screen">
+      <div class="boot-rings">
+        <div class="boot-ring"></div>
+        <div class="boot-ring"></div>
+        <div class="boot-ring"></div>
+        <div class="boot-inner">◆</div>
+      </div>
+      <div class="boot-logo">LIFE<span>LOGS</span></div>
+      <div class="boot-terminal">
+        <div class="line">// SYSTEM INITIALIZING...</div>
+        <div class="line active" id="boot-line">// LOADING AI PLANNING ENGINE...</div>
+        <div class="line" id="boot-line2">// CALIBRATING LIFE VECTORS...</div>
+      </div>
+      <div class="boot-progress"><div class="boot-progress-fill"></div></div>
+      <button class="boot-cta" id="boot-cta" onclick="startCharSelect()">
+        [ PRESS TO BEGIN ]
+      </button>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         CHARACTER SELECT
+    ══════════════════════════════════════════ -->
+    <div id="char-select">
+      <div class="cs-header">
+        <div class="cs-tag">// LIFELOGS_OS v1.0 · SELECT YOUR OPERATIVE CLASS</div>
+        <h1 class="cs-title">CHOOSE YOUR<br /><span>CHARACTER</span></h1>
+        <p class="cs-sub">Your archetype sets base stats · All parameters adjustable in next step</p>
+      </div>
+
+      <div class="archetype-grid" id="archetype-grid">
+        <!-- Populated by character.js -->
+      </div>
+
+      <div style="display:flex;justify-content:center;gap:16px;margin-top:8px;">
+        <button class="btn-primary" id="cs-proceed" onclick="proceedToWizard()" style="opacity:0.4;pointer-events:none;">
+          DEPLOY SELECTED ARCHETYPE →
+        </button>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         WIZARD
+    ══════════════════════════════════════════ -->
+    <div id="wizard-screen">
+      <div class="wizard-layout">
+
+        <!-- Left Rail -->
+        <div class="wizard-rail">
+          <div class="wizard-logo">LIFE<span>LOGS</span></div>
+          <div class="wizard-steps" id="wz-steps">
+            <!-- Populated by character.js -->
+          </div>
+          <div style="margin-top:auto;padding-top:32px;">
+            <div style="font-family:var(--mono);font-size:0.55rem;color:var(--muted);letter-spacing:1px;line-height:1.8;">
+              // DATA_PRIVACY<br />
+              All data stays in your browser.<br />
+              Nothing is sent to any server.
+            </div>
+          </div>
+        </div>
+
+        <!-- Main Panel -->
+        <div class="wizard-main">
+
+          <!-- Step 1: Personal Base -->
+          <div class="wizard-panel active" id="wp-1">
+            <div class="wp-step-tag">// STEP_01 · PERSONAL_BASE</div>
+            <h2 class="wp-title">WHO ARE<br />YOU?</h2>
+            <p class="wp-desc">// SET YOUR OPERATIVE IDENTITY · THIS PERSONALIZES ALL PROJECTIONS</p>
+            <div class="wp-fields">
+              <div class="wp-row">
+                <div class="wp-field">
+                  <label class="wp-label">OPERATIVE NAME</label>
+                  <input class="hud-input" id="f-name" type="text" placeholder="YOUR_NAME" />
+                </div>
+                <div class="wp-field">
+                  <label class="wp-label">CURRENT AGE</label>
+                  <input class="hud-input" id="f-age" type="number" placeholder="25" min="16" max="65" />
+                </div>
+              </div>
+              <div class="wp-row">
+                <div class="wp-field">
+                  <label class="wp-label">CITY / LOCATION</label>
+                  <input class="hud-input" id="f-city" type="text" placeholder="BANGALORE, MUMBAI..." />
+                </div>
+                <div class="wp-field">
+                  <label class="wp-label">EDUCATION LEVEL</label>
+                  <select class="hud-select" id="f-education">
+                    <option value="">SELECT_EDUCATION</option>
+                    <option value="high_school">High School / 12th</option>
+                    <option value="diploma">Diploma</option>
+                    <option value="bachelors">Bachelor's Degree</option>
+                    <option value="masters">Master's Degree</option>
+                    <option value="phd">PhD / Doctorate</option>
+                    <option value="professional">Professional Degree (CA/MBA/MD)</option>
+                  </select>
+                </div>
+              </div>
+              <div class="wp-field">
+                <label class="wp-label">MARITAL STATUS</label>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                  <button class="btn-ghost" id="ms-single" onclick="selectMarital('single',this)" style="padding:10px 20px;font-size:0.6rem;">SINGLE</button>
+                  <button class="btn-ghost" id="ms-married" onclick="selectMarital('married',this)" style="padding:10px 20px;font-size:0.6rem;">MARRIED</button>
+                  <button class="btn-ghost" id="ms-relationship" onclick="selectMarital('relationship',this)" style="padding:10px 20px;font-size:0.6rem;">IN RELATIONSHIP</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 2: Career Profile -->
+          <div class="wizard-panel" id="wp-2">
+            <div class="wp-step-tag">// STEP_02 · CAREER_PROFILE</div>
+            <h2 class="wp-title">YOUR<br />CAREER DNA</h2>
+            <p class="wp-desc">// INCOME + EXPERIENCE = YOUR GROWTH VECTOR</p>
+            <div class="wp-fields">
+              <div class="wp-row">
+                <div class="wp-field">
+                  <label class="wp-label">JOB TITLE</label>
+                  <input class="hud-input" id="f-jobtitle" type="text" placeholder="SOFTWARE ENGINEER..." />
+                </div>
+                <div class="wp-field">
+                  <label class="wp-label">YEARS OF EXPERIENCE</label>
+                  <input class="hud-input" id="f-experience" type="number" placeholder="3" min="0" max="40" />
+                </div>
+              </div>
+              <div class="wp-field">
+                <label class="wp-label">CURRENT ANNUAL SALARY (₹)</label>
+                <div class="salary-display" id="salary-display">₹3.50 LPA</div>
+                <input class="hud-range" id="f-salary" type="range" min="100000" max="5000000" step="25000" value="350000"
+                  oninput="updateSalaryDisplay(this.value)" />
+                <div style="display:flex;justify-content:space-between;margin-top:6px;">
+                  <span class="salary-sub">₹1L</span>
+                  <span class="salary-sub">₹50L</span>
+                </div>
+              </div>
+              <div class="wp-row">
+                <div class="wp-field">
+                  <label class="wp-label">INDUSTRY / SECTOR</label>
+                  <select class="hud-select" id="f-industry">
+                    <option value="">SELECT_INDUSTRY</option>
+                    <option value="tech">Technology / IT</option>
+                    <option value="finance">Finance / Banking</option>
+                    <option value="healthcare">Healthcare / Medical</option>
+                    <option value="govt">Government / PSU</option>
+                    <option value="manufacturing">Manufacturing</option>
+                    <option value="media">Media / Creative</option>
+                    <option value="education">Education</option>
+                    <option value="startup">Startup / Entrepreneur</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+                <div class="wp-field">
+                  <label class="wp-label">EMPLOYMENT TYPE</label>
+                  <select class="hud-select" id="f-employment">
+                    <option value="full_time">Full-time Employee</option>
+                    <option value="self_employed">Self-Employed</option>
+                    <option value="freelance">Freelancer</option>
+                    <option value="business_owner">Business Owner</option>
+                    <option value="student">Student / Intern</option>
+                    <option value="unemployed">Currently Unemployed</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 3: Financial Status -->
+          <div class="wizard-panel" id="wp-3">
+            <div class="wp-step-tag">// STEP_03 · FINANCIAL_STATUS</div>
+            <h2 class="wp-title">YOUR<br />FINANCIAL BASE</h2>
+            <p class="wp-desc">// CASH, SAVINGS, AND INVESTMENTS · THE ENGINE USES THIS FOR ALL PROJECTIONS</p>
+            <div class="wp-fields">
+              <div class="wp-row">
+                <div class="wp-field">
+                  <label class="wp-label">TOTAL BANK BALANCE (₹)</label>
+                  <input class="hud-input" id="f-bank" type="number" placeholder="50000" />
+                  <div class="wp-hint">// All bank accounts combined</div>
+                </div>
+                <div class="wp-field">
+                  <label class="wp-label">MONTHLY SAVINGS (₹)</label>
+                  <input class="hud-input" id="f-savings" type="number" placeholder="5000" />
+                  <div class="wp-hint">// After all expenses + EMIs</div>
+                </div>
+              </div>
+              <div class="wp-row">
+                <div class="wp-field">
+                  <label class="wp-label">MUTUAL FUNDS / STOCKS (₹)</label>
+                  <input class="hud-input" id="f-mf" type="number" placeholder="0" />
+                  <div class="wp-hint">// Current market value</div>
+                </div>
+                <div class="wp-field">
+                  <label class="wp-label">FIXED DEPOSITS / PPF / GOLD (₹)</label>
+                  <input class="hud-input" id="f-fd" type="number" placeholder="0" />
+                </div>
+              </div>
+              <div class="wp-row">
+                <div class="wp-field">
+                  <label class="wp-label">MONTHLY INCOME (₹)</label>
+                  <input class="hud-input" id="f-income" type="number" placeholder="29000" />
+                  <div class="wp-hint">// Take-home per month</div>
+                </div>
+                <div class="wp-field">
+                  <label class="wp-label">MONTHLY EXPENSES (₹)</label>
+                  <input class="hud-input" id="f-expenses" type="number" placeholder="20000" />
+                  <div class="wp-hint">// Rent + food + bills (excluding EMIs)</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 4: Assets & Liabilities -->
+          <div class="wizard-panel" id="wp-4">
+            <div class="wp-step-tag">// STEP_04 · ASSETS_AND_LIABILITIES</div>
+            <h2 class="wp-title">WHAT DO<br />YOU OWN?</h2>
+            <p class="wp-desc">// CURRENT ASSETS, LOANS, AND LIABILITIES · AFFECTS YOUR FINANCIAL RUNWAY</p>
+            <div class="wp-fields">
+              <div class="wp-label" style="margin-bottom:10px;">OWNED ASSETS — CLICK TO MARK OWNED</div>
+              <div class="assets-grid" id="assets-grid">
+                <div class="asset-toggle" id="at-bike" onclick="toggleAsset('bike',this)" data-val="0">
+                  <div class="at-check">✓</div>
+                  <span class="at-icon">🏍️</span>
+                  <div class="at-label">BIKE / 2W</div>
+                </div>
+                <div class="asset-toggle" id="at-car" onclick="toggleAsset('car',this)" data-val="0">
+                  <div class="at-check">✓</div>
+                  <span class="at-icon">🚗</span>
+                  <div class="at-label">CAR / 4W</div>
+                </div>
+                <div class="asset-toggle" id="at-property" onclick="toggleAsset('property',this)" data-val="0">
+                  <div class="at-check">✓</div>
+                  <span class="at-icon">🏠</span>
+                  <div class="at-label">PROPERTY</div>
+                </div>
+                <div class="asset-toggle" id="at-gold" onclick="toggleAsset('gold',this)" data-val="0">
+                  <div class="at-check">✓</div>
+                  <span class="at-icon">🥇</span>
+                  <div class="at-label">GOLD</div>
+                </div>
+                <div class="asset-toggle" id="at-business" onclick="toggleAsset('business',this)" data-val="0">
+                  <div class="at-check">✓</div>
+                  <span class="at-icon">💼</span>
+                  <div class="at-label">BUSINESS</div>
+                </div>
+                <div class="asset-toggle" id="at-land" onclick="toggleAsset('land',this)" data-val="0">
+                  <div class="at-check">✓</div>
+                  <span class="at-icon">🌾</span>
+                  <div class="at-label">LAND</div>
+                </div>
+                <div class="asset-toggle" id="at-stocks" onclick="toggleAsset('stocks',this)" data-val="0">
+                  <div class="at-check">✓</div>
+                  <span class="at-icon">📈</span>
+                  <div class="at-label">STOCKS / MF</div>
+                </div>
+                <div class="asset-toggle" id="at-crypto" onclick="toggleAsset('crypto',this)" data-val="0">
+                  <div class="at-check">✓</div>
+                  <span class="at-icon">₿</span>
+                  <div class="at-label">CRYPTO</div>
+                </div>
+              </div>
+
+              <div style="margin-top:8px;">
+                <div class="wp-label" style="margin-bottom:10px;">ACTIVE LOANS / LIABILITIES</div>
+                <div class="loan-types" id="loan-types">
+                  <label class="loan-item">
+                    <input type="checkbox" id="loan-home" value="home" />
+                    <span class="loan-label">🏠 HOME LOAN</span>
+                  </label>
+                  <label class="loan-item">
+                    <input type="checkbox" id="loan-vehicle" value="vehicle" />
+                    <span class="loan-label">🚗 VEHICLE LOAN</span>
+                  </label>
+                  <label class="loan-item">
+                    <input type="checkbox" id="loan-personal" value="personal" />
+                    <span class="loan-label">💳 PERSONAL LOAN</span>
+                  </label>
+                  <label class="loan-item">
+                    <input type="checkbox" id="loan-education" value="education" />
+                    <span class="loan-label">🎓 EDUCATION LOAN</span>
+                  </label>
+                  <label class="loan-item">
+                    <input type="checkbox" id="loan-business" value="business_loan" />
+                    <span class="loan-label">💼 BUSINESS LOAN</span>
+                  </label>
+                  <label class="loan-item">
+                    <input type="checkbox" id="loan-credit" value="credit_card" />
+                    <span class="loan-label">💳 CREDIT CARD DUES</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="wp-row" style="margin-top:4px;">
+                <div class="wp-field">
+                  <label class="wp-label">TOTAL EMI PER MONTH (₹)</label>
+                  <input class="hud-input" id="f-emi" type="number" placeholder="0" />
+                </div>
+                <div class="wp-field">
+                  <label class="wp-label">TOTAL OUTSTANDING DEBT (₹)</label>
+                  <input class="hud-input" id="f-debt" type="number" placeholder="0" />
+                </div>
+              </div>
+
+              <div class="wp-field" id="business-field" style="display:none;">
+                <label class="wp-label">BUSINESS / SIDE INCOME PER MONTH (₹)</label>
+                <input class="hud-input" id="f-biz-income" type="number" placeholder="0" />
+                <div class="wp-hint">// From your existing business or side venture</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 5: Dreams & Goals -->
+          <div class="wizard-panel" id="wp-5">
+            <div class="wp-step-tag">// STEP_05 · DREAMS_AND_GOALS</div>
+            <h2 class="wp-title">WHAT DO<br />YOU WANT?</h2>
+            <p class="wp-desc">// SELECT ALL GOALS THAT MATTER TO YOU · AI WILL PLAN WINDOWS FOR EACH</p>
+            <div class="wp-fields">
+              <div class="goals-grid" id="goals-grid">
+                <!-- Populated by character.js -->
+              </div>
+              <div class="wp-field" style="margin-top:8px;">
+                <label class="wp-label">PRIMARY GOAL PRIORITY</label>
+                <select class="hud-select" id="f-primary-goal">
+                  <option value="">WHICH GOAL MATTERS MOST?</option>
+                </select>
+                <div class="wp-hint">// This drives the recommended scenario</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 6: Risk DNA -->
+          <div class="wizard-panel" id="wp-6">
+            <div class="wp-step-tag">// STEP_06 · RISK_DNA</div>
+            <h2 class="wp-title">YOUR RISK<br />PROFILE</h2>
+            <p class="wp-desc">// HOW MUCH UNCERTAINTY CAN YOU HANDLE? · THIS FILTERS YOUR SCENARIOS</p>
+            <div class="wp-fields">
+              <div class="risk-track">
+                <div class="risk-labels">
+                  <div class="risk-label-item" id="rl-conservative">CONSERVATIVE</div>
+                  <div class="risk-label-item" id="rl-moderate">MODERATE</div>
+                  <div class="risk-label-item" id="rl-aggressive">AGGRESSIVE</div>
+                </div>
+                <input class="hud-range" id="f-risk" type="range" min="0" max="2" step="1" value="1"
+                  oninput="updateRiskDisplay(this.value)" />
+              </div>
+              <div class="risk-description" id="risk-desc">
+                <div class="risk-desc-title" id="risk-desc-title">MODERATE — BALANCED OPERATOR</div>
+                <div class="risk-desc-text" id="risk-desc-text">
+                  You're comfortable taking calculated risks. You want growth but won't bet everything on a long shot. 
+                  Best scenarios: Upskill + Switch, Passive Income, Freelance.
+                </div>
+              </div>
+              <div class="wp-row" style="margin-top:16px;">
+                <div class="wp-field">
+                  <label class="wp-label">MONTHLY LOSS YOU CAN TOLERATE (₹)</label>
+                  <input class="hud-input" id="f-loss-tolerance" type="number" placeholder="5000" />
+                  <div class="wp-hint">// How much income drop is OK during transition?</div>
+                </div>
+                <div class="wp-field">
+                  <label class="wp-label">FINANCIAL RUNWAY (MONTHS)</label>
+                  <input class="hud-input" id="f-runway" type="number" placeholder="3" min="0" max="60" />
+                  <div class="wp-hint">// Months you can survive without income</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 7: Constraints -->
+          <div class="wizard-panel" id="wp-7">
+            <div class="wp-step-tag">// STEP_07 · CONSTRAINTS</div>
+            <h2 class="wp-title">YOUR<br />CONSTRAINTS</h2>
+            <p class="wp-desc">// DEFINE YOUR LIMITS · THE ENGINE RESPECTS THESE IN ALL SCENARIOS</p>
+            <div class="wp-fields">
+              <div class="wp-row">
+                <div class="wp-field">
+                  <label class="wp-label">NUMBER OF DEPENDENTS</label>
+                  <input class="hud-input" id="f-dependents" type="number" placeholder="0" min="0" max="10" />
+                  <div class="wp-hint">// Family members who depend on your income</div>
+                </div>
+                <div class="wp-field">
+                  <label class="wp-label">LOCATION FLEXIBILITY</label>
+                  <select class="hud-select" id="f-location-flex">
+                    <option value="locked">LOCKED — Cannot Relocate</option>
+                    <option value="city">OPEN — Same City Only</option>
+                    <option value="domestic">FLEXIBLE — Anywhere in India</option>
+                    <option value="international">GLOBAL — Open to Abroad</option>
+                  </select>
+                </div>
+              </div>
+              <div class="wp-field">
+                <label class="wp-label">CURRENT COMMITMENTS</label>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;" id="commitments-grid">
+                  <button class="btn-ghost commit-btn" onclick="toggleCommit('aging_parents',this)" style="padding:8px 16px;font-size:0.58rem;">AGING PARENTS</button>
+                  <button class="btn-ghost commit-btn" onclick="toggleCommit('kids',this)" style="padding:8px 16px;font-size:0.58rem;">YOUNG CHILDREN</button>
+                  <button class="btn-ghost commit-btn" onclick="toggleCommit('ongoing_emi',this)" style="padding:8px 16px;font-size:0.58rem;">HEAVY EMIs</button>
+                  <button class="btn-ghost commit-btn" onclick="toggleCommit('health_issues',this)" style="padding:8px 16px;font-size:0.58rem;">HEALTH CONSIDERATIONS</button>
+                  <button class="btn-ghost commit-btn" onclick="toggleCommit('notice_period',this)" style="padding:8px 16px;font-size:0.58rem;">NOTICE PERIOD LOCKED</button>
+                </div>
+              </div>
+              <div class="wp-field">
+                <label class="wp-label">DREAM TIMELINE URGENCY</label>
+                <select class="hud-select" id="f-urgency">
+                  <option value="patient">PATIENT — Long-term is fine (5–10 yrs)</option>
+                  <option value="moderate">MODERATE — Want results in 3–5 years</option>
+                  <option value="urgent">URGENT — Need change in 1–2 years</option>
+                </select>
+              </div>
+              <div class="wp-field">
+                <label class="wp-label">ADDITIONAL CONTEXT (OPTIONAL)</label>
+                <textarea class="hud-input" id="f-context" rows="3" placeholder="// Any other factors the AI should know... (e.g., planning to get married next year, parents need financial support, have a startup idea, etc.)" style="resize:none;"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- Wizard Navigation -->
+          <div class="wizard-nav">
+            <button class="btn-ghost" id="wz-back" onclick="wizardBack()" style="display:none;">← BACK</button>
+            <div class="wz-progress-text" id="wz-progress">STEP 1 OF 7</div>
+            <button class="btn-primary" id="wz-next" onclick="wizardNext()">NEXT →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         AI ANALYSIS SCREEN
+    ══════════════════════════════════════════ -->
+    <div id="analysis-screen">
+      <div class="a-brackets">
+        <div class="a-bracket-tl"></div>
+        <div class="a-bracket-tr"></div>
+        <div class="a-bracket-bl"></div>
+        <div class="a-bracket-br"></div>
+      </div>
+      <div class="analysis-center">
+        <div class="analysis-rings">
+          <div class="a-ring a-ring-1"></div>
+          <div class="a-ring a-ring-2"></div>
+          <div class="a-ring a-ring-3"></div>
+          <div class="a-center"><div class="a-center-icon">🧠</div></div>
+        </div>
+        <div class="analysis-title">ANALYZING YOUR<br /><span>POSSIBLE FUTURES</span></div>
+        <div class="analysis-bars">
+          <div class="a-bar-row">
+            <div class="a-bar-label">CAREER VECTORS</div>
+            <div class="a-bar-track"><div class="a-bar-fill" id="ab-1"></div></div>
+          </div>
+          <div class="a-bar-row">
+            <div class="a-bar-label">FINANCIAL RUNWAY</div>
+            <div class="a-bar-track"><div class="a-bar-fill" id="ab-2"></div></div>
+          </div>
+          <div class="a-bar-row">
+            <div class="a-bar-label">GOAL ALIGNMENT</div>
+            <div class="a-bar-track"><div class="a-bar-fill" id="ab-3"></div></div>
+          </div>
+          <div class="a-bar-row">
+            <div class="a-bar-label">RISK CALIBRATION</div>
+            <div class="a-bar-track"><div class="a-bar-fill" id="ab-4"></div></div>
+          </div>
+          <div class="a-bar-row">
+            <div class="a-bar-label">SCENARIO MAPPING</div>
+            <div class="a-bar-track"><div class="a-bar-fill" id="ab-5"></div></div>
+          </div>
+        </div>
+        <div style="font-family:var(--mono);font-size:0.62rem;color:var(--muted);letter-spacing:2px;" id="analysis-status">
+          // PROCESSING YOUR DATA...
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /#app -->
+
+  <script src="data/archetypes.js"></script>
+  <script src="data/scenarios.js"></script>
+  <script src="js/particles.js"></script>
+  <script src="js/engine.js"></script>
+  <script src="js/character.js"></script>
+</body>
+</html>

@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LifeLogs // DECISION DASHBOARD</title>
+  <meta name="description" content="Your personalized AI life planning dashboard. Explore scenarios, timelines, and action plans." />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+</head>
+<body class="dashboard-body">
+  <canvas id="particle-canvas"></canvas>
+  <div class="scanlines"></div>
+  <div class="page-wipe" id="page-wipe"></div>
+
+  <div id="dashboard">
+
+    <!-- ══════════════════════════════════════════
+         SIDEBAR
+    ══════════════════════════════════════════ -->
+    <div class="db-sidebar">
+      <div class="sb-top">
+        <div class="sb-logo">LIFE<span>LOGS</span></div>
+
+        <!-- Character Portrait -->
+        <div class="char-portrait">
+          <div class="cp-frame" id="cp-frame">🧬</div>
+          <div class="cp-info">
+            <div class="cp-name" id="cp-name">OPERATIVE</div>
+            <div class="cp-class" id="cp-class">// TECH_OPS</div>
+          </div>
+          <div class="cp-badge" id="cp-badge">LVL 1</div>
+        </div>
+
+        <!-- Clarity Score -->
+        <div class="clarity-block">
+          <div class="clarity-label">
+            <span>LIFE_CLARITY_SCORE</span>
+            <span id="clarity-pct">0%</span>
+          </div>
+          <div class="clarity-track">
+            <div class="clarity-fill" id="clarity-fill" style="width:0%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Stats -->
+      <div class="sb-stats">
+        <div class="sb-stat">
+          <div class="sb-stat-label">SALARY</div>
+          <div class="sb-stat-val" id="sb-salary">—</div>
+        </div>
+        <div class="sb-stat">
+          <div class="sb-stat-label">SAVINGS/MO</div>
+          <div class="sb-stat-val" id="sb-savings">—</div>
+        </div>
+        <div class="sb-stat">
+          <div class="sb-stat-label">NET WORTH</div>
+          <div class="sb-stat-val" id="sb-networth">—</div>
+        </div>
+        <div class="sb-stat">
+          <div class="sb-stat-label">RISK</div>
+          <div class="sb-stat-val" id="sb-risk">—</div>
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <nav class="sb-nav">
+        <button class="sb-nav-item active" id="nav-timeline" onclick="switchView('timeline', this)">
+          <span class="sb-nav-icon">🗺️</span> TIMELINE
+        </button>
+        <button class="sb-nav-item" id="nav-scenarios" onclick="switchView('scenarios', this)">
+          <span class="sb-nav-icon">🔀</span> SCENARIOS
+        </button>
+        <button class="sb-nav-item" id="nav-financials" onclick="switchView('financials', this)">
+          <span class="sb-nav-icon">📊</span> FINANCIALS
+        </button>
+        <button class="sb-nav-item" id="nav-action" onclick="switchView('action', this)">
+          <span class="sb-nav-icon">📋</span> ACTION PLAN
+        </button>
+        <button class="sb-nav-item" id="nav-compare" onclick="switchView('compare', this)">
+          <span class="sb-nav-icon">⚖️</span> COMPARE
+        </button>
+        <div class="sb-divider"></div>
+        <button class="sb-nav-item" onclick="editProfile()">
+          <span class="sb-nav-icon">⚙️</span> EDIT PROFILE
+        </button>
+      </nav>
+
+      <!-- Back to Menu -->
+      <button class="sb-back" onclick="backToMenu()">
+        ← BACK TO MENU
+      </button>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         MAIN CONTENT
+    ══════════════════════════════════════════ -->
+    <div class="db-main">
+      <div class="db-topbar">
+        <div class="db-view-title" id="db-view-title">// TIMELINE_ROADMAP</div>
+        <div class="db-topbar-actions">
+          <div class="db-scenario-badge" id="active-scenario-badge">PATH_01 · UPSKILL + SWITCH</div>
+        </div>
+      </div>
+
+      <!-- ── TIMELINE VIEW ── -->
+      <div class="db-view active" id="view-timeline">
+        <div class="timeline-header">
+          <div class="section-tag">MULTI-TIMELINE ROADMAP</div>
+          <p style="font-family:var(--mono);font-size:0.65rem;color:var(--muted);letter-spacing:1px;margin-top:4px;">
+            // PROJECTIONS BASED ON YOUR SELECTED PATH · COLORS INDICATE LIKELIHOOD
+          </p>
+        </div>
+        <div class="tl-columns">
+          <div>
+            <div class="tl-col-header">
+              <div class="tl-col-title" style="color:var(--green);">3-YEAR</div>
+              <div class="tl-col-badge">SHORT TERM</div>
+            </div>
+            <div class="tl-milestones" id="tl-3yr"></div>
+          </div>
+          <div>
+            <div class="tl-col-header">
+              <div class="tl-col-title" style="color:var(--gold);">5-YEAR</div>
+              <div class="tl-col-badge">MID TERM</div>
+            </div>
+            <div class="tl-milestones" id="tl-5yr"></div>
+          </div>
+          <div>
+            <div class="tl-col-header">
+              <div class="tl-col-title" style="color:var(--purple);">10-YEAR</div>
+              <div class="tl-col-badge">LONG TERM</div>
+            </div>
+            <div class="tl-milestones" id="tl-10yr"></div>
+          </div>
+        </div>
+        <div class="goal-windows-section">
+          <div class="section-tag">GOAL WINDOWS</div>
+          <p style="font-family:var(--mono);font-size:0.62rem;color:var(--muted);letter-spacing:1px;margin-top:4px;">
+            // WHEN YOU CAN REALISTICALLY ACHIEVE EACH GOAL ON YOUR SELECTED PATH
+          </p>
+          <div class="gw-grid" id="gw-grid"></div>
+        </div>
+      </div>
+
+      <!-- ── SCENARIOS VIEW ── -->
+      <div class="db-view" id="view-scenarios">
+        <div class="section-tag">SCENARIO_EXPLORER</div>
+        <h2 style="font-family:var(--head);font-size:1.4rem;font-weight:900;letter-spacing:2px;margin-bottom:6px;text-transform:uppercase;">
+          CHOOSE YOUR <span style="color:var(--green);">LIFE PATH</span>
+        </h2>
+        <p style="font-family:var(--mono);font-size:0.62rem;color:var(--muted);letter-spacing:1px;margin-bottom:28px;">
+          // CLICK A PATH TO ACTIVATE IT · YOUR TIMELINE AND FINANCIALS UPDATE AUTOMATICALLY
+        </p>
+        <div class="sc-grid" id="sc-grid"></div>
+        <div class="sc-detail" id="sc-detail" style="display:none;"></div>
+      </div>
+
+      <!-- ── FINANCIALS VIEW ── -->
+      <div class="db-view" id="view-financials">
+        <div class="section-tag">FINANCIAL_PROJECTIONS</div>
+        <h2 style="font-family:var(--head);font-size:1.4rem;font-weight:900;letter-spacing:2px;margin-bottom:24px;text-transform:uppercase;">
+          10-YEAR <span style="color:var(--gold);">FINANCIAL MAP</span>
+        </h2>
+        <div class="fin-controls">
+          <div class="fin-control-block">
+            <div class="fcb-label">MONTHLY SAVINGS RATE</div>
+            <div class="fcb-value" id="fc-savings-val">₹5,000</div>
+            <input class="hud-range" id="fc-savings" type="range" min="1000" max="100000" step="1000" value="5000"
+              oninput="updateFinControl('savings', this.value)" />
+          </div>
+          <div class="fin-control-block">
+            <div class="fcb-label">ANNUAL SALARY GROWTH %</div>
+            <div class="fcb-value" id="fc-growth-val">12%</div>
+            <input class="hud-range" id="fc-growth" type="range" min="5" max="50" step="1" value="12"
+              oninput="updateFinControl('growth', this.value)" />
+          </div>
+          <div class="fin-control-block">
+            <div class="fcb-label">INVESTMENT RETURN %</div>
+            <div class="fcb-value" id="fc-return-val">12%</div>
+            <input class="hud-range" id="fc-return" type="range" min="6" max="25" step="1" value="12"
+              oninput="updateFinControl('return', this.value)" />
+          </div>
+        </div>
+        <div class="fin-legend" id="fin-legend"></div>
+        <div class="chart-area">
+          <canvas id="fin-chart"></canvas>
+        </div>
+        <div class="chart-area" style="height:200px;margin-top:16px;">
+          <canvas id="savings-chart"></canvas>
+        </div>
+      </div>
+
+      <!-- ── ACTION PLAN VIEW ── -->
+      <div class="db-view" id="view-action">
+        <div class="section-tag">ACTION_PLAN</div>
+        <h2 style="font-family:var(--head);font-size:1.4rem;font-weight:900;letter-spacing:2px;margin-bottom:8px;text-transform:uppercase;">
+          MONTH-BY-MONTH <span style="color:var(--teal);">EXECUTION PLAN</span>
+        </h2>
+        <p style="font-family:var(--mono);font-size:0.62rem;color:var(--muted);letter-spacing:1px;margin-bottom:24px;">
+          // BASED ON YOUR SELECTED PATH · CHECK OFF TASKS AS YOU COMPLETE THEM
+        </p>
+        <div class="ap-selector" id="ap-selector"></div>
+        <div class="ap-months" id="ap-months"></div>
+        <div style="margin-top:40px;">
+          <div class="section-tag">SMART RECOMMENDATIONS</div>
+          <div class="recs-grid" id="recs-grid"></div>
+        </div>
+      </div>
+
+      <!-- ── COMPARE VIEW ── -->
+      <div class="db-view" id="view-compare">
+        <div class="section-tag">COMPARE_PATHS</div>
+        <h2 style="font-family:var(--head);font-size:1.4rem;font-weight:900;letter-spacing:2px;margin-bottom:24px;text-transform:uppercase;">
+          SIDE-BY-SIDE <span style="color:var(--purple);">PATH ANALYSIS</span>
+        </h2>
+        <div class="cmp-selectors">
+          <div class="cmp-sel-block">
+            <div class="cmp-sel-label">PATH A — SELECT SCENARIO</div>
+            <select class="hud-select" id="cmp-a" onchange="renderCompare()">
+              <option value="upskill_switch">Upskill & Switch</option>
+              <option value="stay_current">Stay & Optimize</option>
+              <option value="start_business">Launch Venture</option>
+              <option value="relocate">Relocate</option>
+              <option value="passive_income">Passive Income</option>
+              <option value="freelance">Go Freelance</option>
+            </select>
+          </div>
+          <div class="cmp-sel-block">
+            <div class="cmp-sel-label">PATH B — SELECT SCENARIO</div>
+            <select class="hud-select" id="cmp-b" onchange="renderCompare()">
+              <option value="stay_current">Stay & Optimize</option>
+              <option value="upskill_switch">Upskill & Switch</option>
+              <option value="start_business">Launch Venture</option>
+              <option value="relocate">Relocate</option>
+              <option value="passive_income">Passive Income</option>
+              <option value="freelance">Go Freelance</option>
+            </select>
+          </div>
+        </div>
+        <div class="cmp-layout">
+          <div id="cmp-stats-area"></div>
+          <div class="radar-container">
+            <div class="radar-title">// CAPABILITY RADAR</div>
+            <canvas class="radar-canvas" id="radar-chart"></canvas>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /.db-main -->
+  </div><!-- /#dashboard -->
+
+  <script src="data/archetypes.js"></script>
+  <script src="data/scenarios.js"></script>
+  <script src="js/particles.js"></script>
+  <script src="js/engine.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>
