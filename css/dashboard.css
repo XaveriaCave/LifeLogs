@@ -1129,15 +1129,20 @@ body.dashboard-body {
   position: fixed;
   inset: 0;
   /* z-index: 999; */
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(4px);
+  background: rgba(2, 4, 8, 0.85);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   opacity: 0;
-  transition: opacity 0.3s;
+  transition: opacity 0.35s ease;
+  pointer-events: none;
 }
 
 .sb-backdrop.visible {
-  opacity: 1;
+  /* opacity: 1; */
+  pointer-events: all;
 }
+
+
 
 /* ─── BOTTOM NAV BAR (mobile) ────────────────────────────────────────────── */
 .mob-bottom-nav {
@@ -1198,6 +1203,11 @@ body.dashboard-body {
     overflow: auto;
   }
 
+  .sb-logo {
+    position: relative;
+    left: 40px;
+  }
+
   /* Dashboard becomes single-column, sidebar hidden off-screen */
   #dashboard {
     display: block;
@@ -1212,11 +1222,12 @@ body.dashboard-body {
     left: 0;
     width: 280px;
     height: 100vh;
-    z-index: 1000;
+    z-index: 1001;
+    background: rgba(4, 8, 14, 0.98);
     transform: translateX(-100%);
     transition: transform 0.35s cubic-bezier(0.76, 0, 0.24, 1);
     overflow-y: auto;
-    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.5);
+    box-shadow: 8px 0 40px rgba(0, 0, 0, 0.8);
   }
 
   .db-sidebar.open {

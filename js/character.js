@@ -78,7 +78,7 @@ function buildArchetypeGrid() {
       <div class="ac-title">${a.title}</div>
       <div class="ac-subtitle">${a.subtitle}</div>
       <div class="ac-salary" style="color:${a.color}">
-        ₹${(a.baseSalaryMin/100000).toFixed(1)}L – ₹${(a.baseSalaryMax/100000).toFixed(0)}L BASE RANGE
+        ₹${(a.baseSalaryMin / 100000).toFixed(1)}L – ₹${(a.baseSalaryMax / 100000).toFixed(0)}L BASE RANGE
       </div>
       <div class="ac-stats">
         ${buildStatBars(a.stats, a.color)}
@@ -149,6 +149,13 @@ function buildWizardRail() {
   `).join('');
 }
 
+const MOB_STEP_LABELS = [
+  'IDENTITY', 'CAREER', 'FINANCES', 'ASSETS', 'GOALS', 'RISK', 'LIMITS'
+];
+
+buildMobRail(7);       // call once after wizard renders
+syncMobRail(1, 7);     // call on every step change
+
 function updateWizardRail(step) {
   WIZARD_STEPS.forEach(s => {
     const el = document.getElementById(`wz-step-${s.num}`);
@@ -160,11 +167,72 @@ function updateWizardRail(step) {
   });
 }
 
+
+
+function buildMobRail(totalSteps) {
+  // Only build if not already built
+  if (document.getElementById('mob-step-rail')) return;
+
+  const rail = document.createElement('div');
+  rail.className = 'mob-step-rail';
+  rail.id = 'mob-step-rail';
+
+  // Top row: logo + counter
+  rail.innerHTML = `
+    <div class="mob-rail-toprow">
+      <div class="mob-rail-logo">LIFE<span>LOGS</span></div>
+      <div class="mob-rail-counter">STEP <span id="mob-rail-cur">1</span> OF ${totalSteps}</div>
+    </div>
+    <div class="mob-step-dots" id="mob-step-dots">
+      ${Array.from({ length: totalSteps }, (_, i) => `
+        <div class="mob-step-pill${i === 0 ? ' active' : ''}" id="mob-pill-${i + 1}">
+          <div class="mob-step-num">${i + 1}</div>
+          <div class="mob-step-pill-label">${MOB_STEP_LABELS[i] || 'STEP'}</div>
+        </div>
+      `).join('')}
+    </div>
+    <div class="mob-rail-progress">
+      <div class="mob-rail-progress-fill" id="mob-rail-fill" style="width:${(1 / totalSteps * 100).toFixed(1)}%"></div>
+    </div>
+  `;
+
+  // Insert before wizard-layout
+  const wizardScreen = document.getElementById('wizard-screen');
+  wizardScreen.insertBefore(rail, wizardScreen.firstChild);
+}
+
+function syncMobRail(currentStep, totalSteps) {
+  if (!document.getElementById('mob-step-rail')) return;
+
+  // Update counter
+  const cur = document.getElementById('mob-rail-cur');
+  if (cur) cur.textContent = currentStep;
+
+  // Update pills
+  for (let i = 1; i <= totalSteps; i++) {
+    const pill = document.getElementById('mob-pill-' + i);
+    if (!pill) continue;
+    pill.classList.remove('active', 'done');
+    if (i < currentStep) pill.classList.add('done');
+    if (i === currentStep) {
+      pill.classList.add('active');
+      // Scroll active pill into view
+      pill.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    }
+  }
+
+  // Update progress bar
+  const fill = document.getElementById('mob-rail-fill');
+  if (fill) fill.style.width = ((currentStep / totalSteps) * 100).toFixed(1) + '%';
+}
+
+
 // ─── WIZARD NAVIGATION ──────────────────────────────────────────────────────
 
 function wizardNext() {
   if (currentStep < TOTAL_STEPS) {
     currentStep++;
+    syncMobRail(currentStep, TOTAL_STEPS);
     showWizardStep(currentStep);
   } else {
     startAnalysis();
@@ -174,6 +242,7 @@ function wizardNext() {
 function wizardBack() {
   if (currentStep > 1) {
     currentStep--;
+    syncMobRail(currentStep, TOTAL_STEPS);
     showWizardStep(currentStep);
   }
 }
@@ -204,7 +273,7 @@ function checkBusinessField() {
 function updateSalaryDisplay(val) {
   const n = parseInt(val);
   document.getElementById('salary-display').textContent =
-    n >= 100000 ? `₹${(n/100000).toFixed(2)} LPA` : `₹${n.toLocaleString('en-IN')}`;
+    n >= 100000 ? `₹${(n / 100000).toFixed(2)} LPA` : `₹${n.toLocaleString('en-IN')}`;
 }
 
 function updateRiskDisplay(val) {
