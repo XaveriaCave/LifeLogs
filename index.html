@@ -1,13 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>LifeLogs // CREATE YOUR CHARACTER</title>
-  <meta name="description" content="AI-Powered Life Planning & Decision Engine. Build your character. Simulate your futures." />
+  <title>ArshMind // CREATE YOUR CHARACTER</title>
+  <meta name="description"
+    content="AI-Powered Life Planning & Decision Engine. Build your character. Simulate your futures." />
   <link rel="stylesheet" href="css/base.css" />
   <link rel="stylesheet" href="css/character.css" />
 </head>
+
 <body>
   <canvas id="particle-canvas"></canvas>
   <div class="scanlines"></div>
@@ -26,13 +29,15 @@
         <div class="boot-ring"></div>
         <div class="boot-inner">◆</div>
       </div>
-      <div class="boot-logo">LIFE<span>LOGS</span></div>
+      <div class="boot-logo">ARSH<span>MIND</span></div>
       <div class="boot-terminal">
         <div class="line">// SYSTEM INITIALIZING...</div>
         <div class="line active" id="boot-line">// LOADING AI PLANNING ENGINE...</div>
         <div class="line" id="boot-line2">// CALIBRATING LIFE VECTORS...</div>
       </div>
-      <div class="boot-progress"><div class="boot-progress-fill"></div></div>
+      <div class="boot-progress">
+        <div class="boot-progress-fill"></div>
+      </div>
       <button class="boot-cta" id="boot-cta" onclick="startCharSelect()">
         [ PRESS TO BEGIN ]
       </button>
@@ -43,7 +48,7 @@
     ══════════════════════════════════════════ -->
     <div id="char-select">
       <div class="cs-header">
-        <div class="cs-tag">// LIFELOGS_OS v1.0 · SELECT YOUR OPERATIVE CLASS</div>
+        <div class="cs-tag">// ARSHMIND_OS v1.0 · SELECT YOUR OPERATIVE CLASS</div>
         <h1 class="cs-title">CHOOSE YOUR<br /><span>CHARACTER</span></h1>
         <p class="cs-sub">Your archetype sets base stats · All parameters adjustable in next step</p>
       </div>
@@ -53,7 +58,8 @@
       </div>
 
       <div style="display:flex;justify-content:center;gap:16px;margin-top:8px;">
-        <button class="btn-primary" id="cs-proceed" onclick="proceedToWizard()" style="opacity:0.4;pointer-events:none;">
+        <button class="btn-primary" id="cs-proceed" onclick="proceedToWizard()"
+          style="opacity:0.4;pointer-events:none;">
           DEPLOY SELECTED ARCHETYPE →
         </button>
       </div>
@@ -67,12 +73,13 @@
 
         <!-- Left Rail -->
         <div class="wizard-rail">
-          <div class="wizard-logo">LIFE<span>LOGS</span></div>
+          <div class="wizard-logo">ARSH<span>MIND</span></div>
           <div class="wizard-steps" id="wz-steps">
             <!-- Populated by character.js -->
           </div>
           <div style="margin-top:auto;padding-top:32px;">
-            <div style="font-family:var(--mono);font-size:0.55rem;color:var(--muted);letter-spacing:1px;line-height:1.8;">
+            <div
+              style="font-family:var(--mono);font-size:0.55rem;color:var(--muted);letter-spacing:1px;line-height:1.8;">
               // DATA_PRIVACY<br />
               All data stays in your browser.<br />
               Nothing is sent to any server.
@@ -120,9 +127,12 @@
               <div class="wp-field">
                 <label class="wp-label">MARITAL STATUS</label>
                 <div style="display:flex;gap:10px;flex-wrap:wrap;">
-                  <button class="btn-ghost" id="ms-single" onclick="selectMarital('single',this)" style="padding:10px 20px;font-size:0.6rem;">SINGLE</button>
-                  <button class="btn-ghost" id="ms-married" onclick="selectMarital('married',this)" style="padding:10px 20px;font-size:0.6rem;">MARRIED</button>
-                  <button class="btn-ghost" id="ms-relationship" onclick="selectMarital('relationship',this)" style="padding:10px 20px;font-size:0.6rem;">IN RELATIONSHIP</button>
+                  <button class="btn-ghost" id="ms-single" onclick="selectMarital('single',this)"
+                    style="padding:10px 20px;font-size:0.6rem;">SINGLE</button>
+                  <button class="btn-ghost" id="ms-married" onclick="selectMarital('married',this)"
+                    style="padding:10px 20px;font-size:0.6rem;">MARRIED</button>
+                  <button class="btn-ghost" id="ms-relationship" onclick="selectMarital('relationship',this)"
+                    style="padding:10px 20px;font-size:0.6rem;">IN RELATIONSHIP</button>
                 </div>
               </div>
             </div>
@@ -147,8 +157,8 @@
               <div class="wp-field">
                 <label class="wp-label">CURRENT ANNUAL SALARY (₹)</label>
                 <div class="salary-display" id="salary-display">₹3.50 LPA</div>
-                <input class="hud-range" id="f-salary" type="range" min="100000" max="5000000" step="25000" value="350000"
-                  oninput="updateSalaryDisplay(this.value)" />
+                <input class="hud-range" id="f-salary" type="range" min="100000" max="5000000" step="25000"
+                  value="350000" oninput="updateSalaryDisplay(this.value)" />
                 <div style="display:flex;justify-content:space-between;margin-top:6px;">
                   <span class="salary-sub">₹1L</span>
                   <span class="salary-sub">₹50L</span>
@@ -365,7 +375,7 @@
               <div class="risk-description" id="risk-desc">
                 <div class="risk-desc-title" id="risk-desc-title">MODERATE — BALANCED OPERATOR</div>
                 <div class="risk-desc-text" id="risk-desc-text">
-                  You're comfortable taking calculated risks. You want growth but won't bet everything on a long shot. 
+                  You're comfortable taking calculated risks. You want growth but won't bet everything on a long shot.
                   Best scenarios: Upskill + Switch, Passive Income, Freelance.
                 </div>
               </div>
@@ -409,11 +419,16 @@
               <div class="wp-field">
                 <label class="wp-label">CURRENT COMMITMENTS</label>
                 <div style="display:flex;gap:10px;flex-wrap:wrap;" id="commitments-grid">
-                  <button class="btn-ghost commit-btn" onclick="toggleCommit('aging_parents',this)" style="padding:8px 16px;font-size:0.58rem;">AGING PARENTS</button>
-                  <button class="btn-ghost commit-btn" onclick="toggleCommit('kids',this)" style="padding:8px 16px;font-size:0.58rem;">YOUNG CHILDREN</button>
-                  <button class="btn-ghost commit-btn" onclick="toggleCommit('ongoing_emi',this)" style="padding:8px 16px;font-size:0.58rem;">HEAVY EMIs</button>
-                  <button class="btn-ghost commit-btn" onclick="toggleCommit('health_issues',this)" style="padding:8px 16px;font-size:0.58rem;">HEALTH CONSIDERATIONS</button>
-                  <button class="btn-ghost commit-btn" onclick="toggleCommit('notice_period',this)" style="padding:8px 16px;font-size:0.58rem;">NOTICE PERIOD LOCKED</button>
+                  <button class="btn-ghost commit-btn" onclick="toggleCommit('aging_parents',this)"
+                    style="padding:8px 16px;font-size:0.58rem;">AGING PARENTS</button>
+                  <button class="btn-ghost commit-btn" onclick="toggleCommit('kids',this)"
+                    style="padding:8px 16px;font-size:0.58rem;">YOUNG CHILDREN</button>
+                  <button class="btn-ghost commit-btn" onclick="toggleCommit('ongoing_emi',this)"
+                    style="padding:8px 16px;font-size:0.58rem;">HEAVY EMIs</button>
+                  <button class="btn-ghost commit-btn" onclick="toggleCommit('health_issues',this)"
+                    style="padding:8px 16px;font-size:0.58rem;">HEALTH CONSIDERATIONS</button>
+                  <button class="btn-ghost commit-btn" onclick="toggleCommit('notice_period',this)"
+                    style="padding:8px 16px;font-size:0.58rem;">NOTICE PERIOD LOCKED</button>
                 </div>
               </div>
               <div class="wp-field">
@@ -426,7 +441,9 @@
               </div>
               <div class="wp-field">
                 <label class="wp-label">ADDITIONAL CONTEXT (OPTIONAL)</label>
-                <textarea class="hud-input" id="f-context" rows="3" placeholder="// Any other factors the AI should know... (e.g., planning to get married next year, parents need financial support, have a startup idea, etc.)" style="resize:none;"></textarea>
+                <textarea class="hud-input" id="f-context" rows="3"
+                  placeholder="// Any other factors the AI should know... (e.g., planning to get married next year, parents need financial support, have a startup idea, etc.)"
+                  style="resize:none;"></textarea>
               </div>
             </div>
           </div>
@@ -456,32 +473,45 @@
           <div class="a-ring a-ring-1"></div>
           <div class="a-ring a-ring-2"></div>
           <div class="a-ring a-ring-3"></div>
-          <div class="a-center"><div class="a-center-icon">🧠</div></div>
+          <div class="a-center">
+            <div class="a-center-icon">🧠</div>
+          </div>
         </div>
         <div class="analysis-title">ANALYZING YOUR<br /><span>POSSIBLE FUTURES</span></div>
         <div class="analysis-bars">
           <div class="a-bar-row">
             <div class="a-bar-label">CAREER VECTORS</div>
-            <div class="a-bar-track"><div class="a-bar-fill" id="ab-1"></div></div>
+            <div class="a-bar-track">
+              <div class="a-bar-fill" id="ab-1"></div>
+            </div>
           </div>
           <div class="a-bar-row">
             <div class="a-bar-label">FINANCIAL RUNWAY</div>
-            <div class="a-bar-track"><div class="a-bar-fill" id="ab-2"></div></div>
+            <div class="a-bar-track">
+              <div class="a-bar-fill" id="ab-2"></div>
+            </div>
           </div>
           <div class="a-bar-row">
             <div class="a-bar-label">GOAL ALIGNMENT</div>
-            <div class="a-bar-track"><div class="a-bar-fill" id="ab-3"></div></div>
+            <div class="a-bar-track">
+              <div class="a-bar-fill" id="ab-3"></div>
+            </div>
           </div>
           <div class="a-bar-row">
             <div class="a-bar-label">RISK CALIBRATION</div>
-            <div class="a-bar-track"><div class="a-bar-fill" id="ab-4"></div></div>
+            <div class="a-bar-track">
+              <div class="a-bar-fill" id="ab-4"></div>
+            </div>
           </div>
           <div class="a-bar-row">
             <div class="a-bar-label">SCENARIO MAPPING</div>
-            <div class="a-bar-track"><div class="a-bar-fill" id="ab-5"></div></div>
+            <div class="a-bar-track">
+              <div class="a-bar-fill" id="ab-5"></div>
+            </div>
           </div>
         </div>
-        <div style="font-family:var(--mono);font-size:0.62rem;color:var(--muted);letter-spacing:2px;" id="analysis-status">
+        <div style="font-family:var(--mono);font-size:0.62rem;color:var(--muted);letter-spacing:2px;"
+          id="analysis-status">
           // PROCESSING YOUR DATA...
         </div>
       </div>
@@ -495,4 +525,5 @@
   <script src="js/engine.js"></script>
   <script src="js/character.js"></script>
 </body>
+
 </html>
