@@ -180,7 +180,7 @@ function buildMobRail(totalSteps) {
   // Top row: logo + counter
   rail.innerHTML = `
     <div class="mob-rail-toprow">
-      <div class="mob-rail-logo">LIFE<span>LOGS</span></div>
+      <div class="mob-rail-logo">ARSH<span>MIND</span></div>
       <div class="mob-rail-counter">STEP <span id="mob-rail-cur">1</span> OF ${totalSteps}</div>
     </div>
     <div class="mob-step-dots" id="mob-step-dots">

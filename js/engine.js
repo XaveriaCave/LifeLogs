@@ -29,10 +29,10 @@ const ENGINE = {
       const modifier = this._getModifier(scenario, yr);
       const projectedSalary = Math.round(currentSalary * modifier.salaryMultiplier);
       const projectedAnnualSavings = Math.round(annualSavings * modifier.savingsMultiplier);
-      
+
       // Compound the savings with SIP return
       cumulativeSavings = cumulativeSavings * Math.pow(1 + SIP_RETURN, yr === 1 ? 1 : 1) + projectedAnnualSavings;
-      
+
       projection.salary.push({ year: yr, value: projectedSalary, note: modifier.note });
       projection.savings.push({ year: yr, value: Math.round(projectedAnnualSavings) });
       projection.netWorth.push({ year: yr, value: Math.round(cumulativeSavings) });

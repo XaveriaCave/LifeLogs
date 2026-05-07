@@ -12,7 +12,7 @@ window.addEventListener('load', () => {
 
   const stored = localStorage.getItem('lifelogs_profile');
   if (stored) {
-    try { profile = JSON.parse(stored); } catch(e) { profile = getDefaultProfile(); }
+    try { profile = JSON.parse(stored); } catch (e) { profile = getDefaultProfile(); }
   } else {
     profile = getDefaultProfile();
   }
@@ -63,7 +63,7 @@ function initSidebar() {
   const proj = allProjections[activeScenario];
   const netWorth = proj?.netWorth.find(n => n.year === 5);
   document.getElementById('sb-networth').textContent = netWorth ? ENGINE.formatINR(netWorth.value) : '—';
-  document.getElementById('sb-risk').textContent = (profile.riskProfile || 'MODERATE').toUpperCase().slice(0,3);
+  document.getElementById('sb-risk').textContent = (profile.riskProfile || 'MODERATE').toUpperCase().slice(0, 3);
 
   // Active scenario badge
   const sc = SCENARIOS[activeScenario];
@@ -478,17 +478,17 @@ function editProfile() {
 // ─── MOBILE SIDEBAR ──────────────────────────────────────────────────────────
 
 function toggleSidebar() {
-  const sidebar  = document.getElementById('dashboard').querySelector('.db-sidebar');
+  const sidebar = document.getElementById('dashboard').querySelector('.db-sidebar');
   const backdrop = document.getElementById('sb-backdrop');
-  const burger   = document.getElementById('mob-hamburger');
-  const isOpen   = sidebar.classList.contains('open');
+  const burger = document.getElementById('mob-hamburger');
+  const isOpen = sidebar.classList.contains('open');
   isOpen ? closeSidebar() : openSidebar();
 }
 
 function openSidebar() {
-  const sidebar  = document.getElementById('dashboard').querySelector('.db-sidebar');
+  const sidebar = document.getElementById('dashboard').querySelector('.db-sidebar');
   const backdrop = document.getElementById('sb-backdrop');
-  const burger   = document.getElementById('mob-hamburger');
+  const burger = document.getElementById('mob-hamburger');
   sidebar.classList.add('open');
   backdrop.classList.add('visible');
   burger.classList.add('open');
@@ -496,9 +496,9 @@ function openSidebar() {
 }
 
 function closeSidebar() {
-  const sidebar  = document.getElementById('dashboard').querySelector('.db-sidebar');
+  const sidebar = document.getElementById('dashboard').querySelector('.db-sidebar');
   const backdrop = document.getElementById('sb-backdrop');
-  const burger   = document.getElementById('mob-hamburger');
+  const burger = document.getElementById('mob-hamburger');
   sidebar.classList.remove('open');
   backdrop.classList.remove('visible');
   burger.classList.remove('open');
