@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);background:transparent;color:var(--color-text-primary)}
+h2.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+
+/* layout */
+.root{display:grid;grid-template-columns:220px 1fr;min-height:100vh;gap:0}
+.sidebar{border-right:0.5px solid var(--color-border-tertiary);padding:1.5rem 1rem;display:flex;flex-direction:column;gap:4px;position:sticky;top:0;height:100vh;overflow-y:auto;background:var(--color-background-primary)}
+.main{padding:2rem 2.5rem;overflow-y:auto}
+
+/* sidebar nav */
+.nav-section{font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--color-text-tertiary);padding:12px 8px 4px}
+.nav-item{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:var(--border-radius-md);font-size:13px;cursor:pointer;color:var(--color-text-secondary);transition:background .15s,color .15s;border:none;background:none;width:100%;text-align:left}
+.nav-item:hover{background:var(--color-background-secondary);color:var(--color-text-primary)}
+.nav-item.active{background:var(--color-background-secondary);color:var(--color-text-primary);font-weight:500}
+.nav-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+
+/* main sections */
+.section{display:none}
+.section.active{display:block}
+
+/* page header */
+.page-header{margin-bottom:2rem}
+.page-tag{font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--color-text-tertiary);margin-bottom:8px}
+.page-title{font-size:22px;font-weight:500;margin-bottom:8px}
+.page-desc{font-size:14px;color:var(--color-text-secondary);line-height:1.6;max-width:720px}
+
+/* cards */
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1.25rem 1.5rem;margin-bottom:1rem}
+.card-title{font-size:15px;font-weight:500;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.card-desc{font-size:13px;color:var(--color-text-secondary);line-height:1.6}
+
+/* section heading */
+.sh{font-size:13px;font-weight:500;letter-spacing:.04em;text-transform:uppercase;color:var(--color-text-tertiary);margin:2rem 0 1rem;border-bottom:0.5px solid var(--color-border-tertiary);padding-bottom:.5rem}
+
+/* grid layouts */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem}
+
+/* tech stack badge */
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:3px 8px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-tertiary);color:var(--color-text-secondary);background:var(--color-background-secondary);margin:2px}
+.badge.blue{background:var(--color-background-info);color:var(--color-text-info);border-color:transparent}
+.badge.green{background:var(--color-background-success);color:var(--color-text-success);border-color:transparent}
+.badge.amber{background:var(--color-background-warning);color:var(--color-text-warning);border-color:transparent}
+.badge.red{background:var(--color-background-danger);color:var(--color-text-danger);border-color:transparent}
+
+/* PR card */
+.pr-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1.25rem 1.5rem;margin-bottom:.75rem;cursor:pointer;transition:border-color .15s}
+.pr-card:hover{border-color:var(--color-border-secondary)}
+.pr-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:8px}
+.pr-title{font-size:14px;font-weight:500}
+.pr-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:6px}
+.pr-body{font-size:13px;color:var(--color-text-secondary);line-height:1.6;margin-bottom:10px}
+.pr-files{font-size:12px;color:var(--color-text-tertiary);font-family:var(--font-mono)}
+
+/* pill tabs */
+.tabs{display:flex;gap:4px;margin-bottom:1.5rem;border-bottom:0.5px solid var(--color-border-tertiary);padding-bottom:0}
+.tab{font-size:13px;padding:8px 14px;cursor:pointer;border:none;background:none;color:var(--color-text-secondary);border-bottom:2px solid transparent;margin-bottom:-0.5px;transition:color .15s,border-color .15s}
+.tab.active{color:var(--color-text-primary);border-bottom-color:var(--color-text-primary);font-weight:500}
+.tab:hover{color:var(--color-text-primary)}
+
+/* table */
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{text-align:left;font-weight:500;font-size:12px;color:var(--color-text-tertiary);padding:8px 12px;border-bottom:0.5px solid var(--color-border-tertiary);text-transform:uppercase;letter-spacing:.04em}
+.tbl td{padding:10px 12px;border-bottom:0.5px solid var(--color-border-tertiary);color:var(--color-text-secondary);vertical-align:top}
+.tbl td:first-child{color:var(--color-text-primary);font-weight:500}
+.tbl tr:last-child td{border-bottom:none}
+
+/* priority indicator */
+.p1{color:var(--color-text-danger);font-weight:500}
+.p2{color:var(--color-text-warning);font-weight:500}
+.p3{color:var(--color-text-success);font-weight:500}
+
+/* stack layer */
+.layer{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden;margin-bottom:1rem}
+.layer-header{padding:.75rem 1.25rem;font-size:13px;font-weight:500;background:var(--color-background-secondary);border-bottom:0.5px solid var(--color-border-tertiary);display:flex;align-items:center;gap:8px}
+.layer-body{padding:.75rem 1.25rem}
+.layer-row{display:flex;align-items:flex-start;gap:12px;padding:8px 0;border-bottom:0.5px solid var(--color-border-tertiary);font-size:13px}
+.layer-row:last-child{border-bottom:none}
+.layer-key{color:var(--color-text-tertiary);width:130px;flex-shrink:0;font-size:12px;padding-top:2px;font-family:var(--font-mono)}
+.layer-val{color:var(--color-text-primary);line-height:1.5;flex:1}
+
+/* db schema */
+.schema-table{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden;margin-bottom:1rem;font-size:12px;font-family:var(--font-mono)}
+.schema-header{padding:.5rem 1rem;background:var(--color-background-secondary);font-weight:500;font-size:13px;font-family:var(--font-sans);border-bottom:0.5px solid var(--color-border-tertiary);display:flex;align-items:center;gap:6px}
+.schema-row{display:grid;grid-template-columns:140px 100px 1fr;gap:8px;padding:6px 1rem;border-bottom:0.5px solid var(--color-border-tertiary);align-items:center}
+.schema-row:last-child{border-bottom:none}
+.col-name{color:var(--color-text-primary)}
+.col-type{color:var(--color-text-info)}
+.col-note{color:var(--color-text-tertiary);font-size:11px;font-family:var(--font-sans)}
+.pk{color:var(--color-text-warning);margin-right:4px}
+.fk{color:var(--color-text-success);margin-right:4px}
+
+/* prompt box */
+.prompt-box{border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-lg);overflow:hidden;margin-bottom:1rem}
+.prompt-label{padding:.5rem 1rem;font-size:11px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--color-text-tertiary);background:var(--color-background-secondary);border-bottom:0.5px solid var(--color-border-tertiary)}
+.prompt-body{padding:1rem;font-size:13px;font-family:var(--font-mono);color:var(--color-text-secondary);line-height:1.7;white-space:pre-wrap;word-break:break-word}
+.prompt-copy{display:flex;justify-content:flex-end;padding:.5rem 1rem;border-top:0.5px solid var(--color-border-tertiary)}
+.prompt-copy button{font-size:12px;padding:4px 12px;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);background:var(--color-background-secondary);cursor:pointer;color:var(--color-text-secondary)}
+.prompt-copy button:hover{background:var(--color-background-primary);color:var(--color-text-primary)}
+
+/* flow diagram strip */
+.flow{display:flex;align-items:center;gap:0;margin:1rem 0;flex-wrap:wrap}
+.flow-node{padding:8px 14px;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);font-size:12px;font-weight:500;white-space:nowrap}
+.flow-arrow{color:var(--color-text-tertiary);font-size:16px;padding:0 6px}
+.flow-node.active{border-color:var(--color-border-info);color:var(--color-text-info);background:var(--color-background-info)}
+
+/* metric card */
+.metric{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:1rem;text-align:center}
+.metric-val{font-size:22px;font-weight:500;margin-bottom:4px}
+.metric-label{font-size:12px;color:var(--color-text-tertiary)}
+
+/* expand toggle */
+.expand-btn{background:none;border:none;cursor:pointer;font-size:12px;color:var(--color-text-tertiary);padding:0;margin-top:6px;display:flex;align-items:center;gap:4px}
+.expand-btn:hover{color:var(--color-text-primary)}
+.expandable{display:none;margin-top:10px;padding-top:10px;border-top:0.5px solid var(--color-border-tertiary)}
+.expandable.open{display:block}
+
+.tag-row{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}
+</style>
+</head>
+<body>
+<h2 class="sr-only">ArshMind Full-Stack Product Specification — feature prompts, PR flows, tech stack, and database schema for building a production web app.</h2>
+
+<div class="root">
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div style="font-size:15px;font-weight:500;padding:4px 8px 16px">ArshMind <span style="color:var(--color-text-tertiary);font-weight:400">/ PRD</span></div>
+
+  <div class="nav-section">Overview</div>
+  <button class="nav-item active" onclick="show('overview',this)"><span class="nav-dot" style="background:#888"></span>Product Vision</button>
+  <button class="nav-item" onclick="show('stack',this)"><span class="nav-dot" style="background:#378ADD"></span>Tech Stack</button>
+
+  <div class="nav-section">Architecture</div>
+  <button class="nav-item" onclick="show('frontend',this)"><span class="nav-dot" style="background:#1D9E75"></span>Frontend</button>
+  <button class="nav-item" onclick="show('backend',this)"><span class="nav-dot" style="background:#BA7517"></span>Backend API</button>
+  <button class="nav-item" onclick="show('database',this)"><span class="nav-dot" style="background:#533AB7"></span>Database</button>
+  <button class="nav-item" onclick="show('ai',this)"><span class="nav-dot" style="background:#D85A30"></span>AI Layer</button>
+
+  <div class="nav-section">Build Plan</div>
+  <button class="nav-item" onclick="show('prs',this)"><span class="nav-dot" style="background:#639922"></span>PR Flow</button>
+  <button class="nav-item" onclick="show('prompts',this)"><span class="nav-dot" style="background:#E24B4A"></span>AI Prompts</button>
+  <button class="nav-item" onclick="show('phases',this)"><span class="nav-dot" style="background:#888"></span>Phases</button>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+<!-- ═══════════════════ OVERVIEW ═══════════════════ -->
+<div class="section active" id="s-overview">
+  <div class="page-header">
+    <div class="page-tag">Product Vision</div>
+    <div class="page-title">ArshMind — Full-Stack Upgrade Spec</div>
+    <div class="page-desc">Transform the current static HTML/localStorage prototype into a production-grade web app with persistent user accounts, real-time AI projections, social features, and a monetizable SaaS tier. Everything here maps directly to implementable code.</div>
+  </div>
+
+  <div class="grid-4" style="margin-bottom:2rem">
+    <div class="metric"><div class="metric-val">4</div><div class="metric-label">Build phases</div></div>
+    <div class="metric"><div class="metric-val">28</div><div class="metric-label">Feature PRs</div></div>
+    <div class="metric"><div class="metric-val">12</div><div class="metric-label">DB tables</div></div>
+    <div class="metric"><div class="metric-val">18</div><div class="metric-label">API endpoints</div></div>
+  </div>
+
+  <div class="sh">Core upgrades from prototype → product</div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><i class="ti ti-database" aria-hidden="true"></i>Persistent Accounts</div>
+      <div class="card-desc">Replace localStorage with a real database. Users own their profile, projections, and history across devices. OAuth + email auth.</div>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="ti ti-robot" aria-hidden="true"></i>Real AI Engine</div>
+      <div class="card-desc">Replace hard-coded scenario modifiers with a Claude/GPT-backed projection engine that reasons about the user's specific context, city, and goals.</div>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="ti ti-users" aria-hidden="true"></i>Community & Benchmarks</div>
+      <div class="card-desc">Anonymous peer comparison. "Doctors in Bangalore with 3 years experience save X on average." Cohort benchmarking.</div>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="ti ti-chart-line" aria-hidden="true"></i>Live Financial Sync</div>
+      <div class="card-desc">Connect to bank accounts via Account Aggregator (India). Auto-update savings and income in projections. Net worth tracker.</div>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="ti ti-bell" aria-hidden="true"></i>Milestone Alerts</div>
+      <div class="card-desc">Push/email notifications when a goal window opens, savings hit a target, or a recommended action is overdue.</div>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="ti ti-credit-card" aria-hidden="true"></i>Monetization Layer</div>
+      <div class="card-desc">Free tier with 1 scenario. Pro tier unlocks all 6 paths, AI advisor chat, PDF export, and custom goal creation.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ TECH STACK ═══════════════════ -->
+<div class="section" id="s-stack">
+  <div class="page-header">
+    <div class="page-tag">Technology</div>
+    <div class="page-title">Full-Stack Tech Stack</div>
+    <div class="page-desc">Chosen for India-market speed, free tiers during MVP, and a clear path to scale. Every choice maps to a specific ArshMind feature need.</div>
+  </div>
+
+  <div class="layer">
+    <div class="layer-header"><i class="ti ti-device-desktop" aria-hidden="true"></i>Frontend</div>
+    <div class="layer-body">
+      <div class="layer-row"><div class="layer-key">Framework</div><div class="layer-val"><span class="badge blue">Next.js 14 (App Router)</span> SSR for SEO on landing, CSR for dashboard. File-based routing maps cleanly to existing pages.</div></div>
+      <div class="layer-row"><div class="layer-key">Language</div><div class="layer-val"><span class="badge blue">TypeScript</span> Full type safety across profile objects, scenario data, and API responses.</div></div>
+      <div class="layer-row"><div class="layer-key">Styling</div><div class="layer-val"><span class="badge">Tailwind CSS</span> Port existing CSS variables as Tailwind theme tokens. Keep the COD aesthetic exactly.</div></div>
+      <div class="layer-row"><div class="layer-key">State</div><div class="layer-val"><span class="badge">Zustand</span> Global store for profile, activeScenario, projections. Replaces all window.* globals and localStorage direct reads.</div></div>
+      <div class="layer-row"><div class="layer-key">Charts</div><div class="layer-val"><span class="badge">Recharts</span> Replace custom canvas charts. React-friendly, responsive, accessible. Radar + Line + Bar all supported.</div></div>
+      <div class="layer-row"><div class="layer-key">Auth UI</div><div class="layer-val"><span class="badge">NextAuth.js v5</span> Handles Google OAuth + email magic link. Session cookie passed to all API calls.</div></div>
+      <div class="layer-row"><div class="layer-key">Forms</div><div class="layer-val"><span class="badge">React Hook Form + Zod</span> Wizard validation. Zod schema shared with backend for end-to-end type safety.</div></div>
+      <div class="layer-row"><div class="layer-key">Animations</div><div class="layer-val"><span class="badge">Framer Motion</span> Page wipe transitions, step reveals, analysis screen. Replaces CSS keyframe animations.</div></div>
+    </div>
+  </div>
+
+  <div class="layer">
+    <div class="layer-header"><i class="ti ti-server" aria-hidden="true"></i>Backend / API</div>
+    <div class="layer-body">
+      <div class="layer-row"><div class="layer-key">Runtime</div><div class="layer-val"><span class="badge amber">Next.js Route Handlers</span> API routes co-located with app. No separate Express server needed for v1. Add a standalone Node service for v2 if needed.</div></div>
+      <div class="layer-row"><div class="layer-key">ORM</div><div class="layer-val"><span class="badge amber">Prisma</span> Type-safe DB client. Migrations tracked in version control. Schema-first design matches the ArshMind data model.</div></div>
+      <div class="layer-row"><div class="layer-key">Validation</div><div class="layer-val"><span class="badge amber">Zod</span> Same schema used in frontend forms validates API inputs. Single source of truth.</div></div>
+      <div class="layer-row"><div class="layer-key">Jobs</div><div class="layer-val"><span class="badge amber">Inngest</span> Background functions for: re-running projections nightly, sending milestone alerts, processing bank sync webhooks.</div></div>
+      <div class="layer-row"><div class="layer-key">Payments</div><div class="layer-val"><span class="badge amber">Razorpay</span> India-first. Subscription API for Pro tier. Webhooks for subscription lifecycle events.</div></div>
+      <div class="layer-row"><div class="layer-key">File Storage</div><div class="layer-val"><span class="badge amber">Cloudflare R2</span> PDF export storage, avatar uploads. S3-compatible. Free egress.</div></div>
+      <div class="layer-row"><div class="layer-key">Email</div><div class="layer-val"><span class="badge amber">Resend</span> Magic links, milestone notifications, weekly snapshot digest.</div></div>
+    </div>
+  </div>
+
+  <div class="layer">
+    <div class="layer-header"><i class="ti ti-database" aria-hidden="true"></i>Database</div>
+    <div class="layer-body">
+      <div class="layer-row"><div class="layer-key">Primary DB</div><div class="layer-val"><span class="badge" style="background:var(--color-background-success);color:var(--color-text-success)">PostgreSQL (Neon)</span> Serverless Postgres. Branching for dev/staging. Free tier sufficient for 10k users.</div></div>
+      <div class="layer-row"><div class="layer-key">Cache</div><div class="layer-val"><span class="badge" style="background:var(--color-background-success);color:var(--color-text-success)">Upstash Redis</span> Cache AI projection results (expensive to compute). Rate-limit API calls. Session store.</div></div>
+      <div class="layer-row"><div class="layer-key">Search</div><div class="layer-val"><span class="badge" style="background:var(--color-background-success);color:var(--color-text-success)">Postgres Full-text</span> Search across user goals, context notes, and action plan tasks. pg_trgm for fuzzy match.</div></div>
+    </div>
+  </div>
+
+  <div class="layer">
+    <div class="layer-header"><i class="ti ti-robot" aria-hidden="true"></i>AI Layer</div>
+    <div class="layer-body">
+      <div class="layer-row"><div class="layer-key">LLM</div><div class="layer-val"><span class="badge red">Claude claude-sonnet-4-20250514</span> Primary AI for projections, advisor chat, action plan generation, recommendation text.</div></div>
+      <div class="layer-row"><div class="layer-key">Fallback</div><div class="layer-val"><span class="badge red">GPT-4o-mini</span> Cheaper fallback for high-volume classification tasks (goal categorization, risk scoring).</div></div>
+      <div class="layer-row"><div class="layer-key">SDK</div><div class="layer-val"><span class="badge red">Vercel AI SDK</span> Streaming responses to frontend. Tool use for structured JSON output from projections.</div></div>
+    </div>
+  </div>
+
+  <div class="layer">
+    <div class="layer-header"><i class="ti ti-cloud" aria-hidden="true"></i>Infrastructure / DevOps</div>
+    <div class="layer-body">
+      <div class="layer-row"><div class="layer-key">Hosting</div><div class="layer-val"><span class="badge">Vercel</span> Next.js native. Edge functions for API. Auto-previews per PR.</div></div>
+      <div class="layer-row"><div class="layer-key">CI/CD</div><div class="layer-val"><span class="badge">GitHub Actions</span> Lint → typecheck → test → deploy on merge to main.</div></div>
+      <div class="layer-row"><div class="layer-key">Monitoring</div><div class="layer-val"><span class="badge">Sentry + Vercel Analytics</span> Error tracking and Core Web Vitals. Free tiers.</div></div>
+      <div class="layer-row"><div class="layer-key">Secrets</div><div class="layer-val"><span class="badge">Vercel Environment Variables</span> Dev/preview/prod env separation. No .env in repo.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ FRONTEND ═══════════════════ -->
+<div class="section" id="s-frontend">
+  <div class="page-header">
+    <div class="page-tag">Architecture → Frontend</div>
+    <div class="page-title">Frontend Module Map</div>
+    <div class="page-desc">Direct translation of the existing HTML/JS files into a Next.js App Router structure. Every existing screen maps to a route.</div>
+  </div>
+
+  <div class="sh">Route structure</div>
+  <div class="card" style="font-family:var(--font-mono);font-size:12px;line-height:2">
+    <div style="color:var(--color-text-primary)">app/</div>
+    <div style="padding-left:16px;color:var(--color-text-secondary)">page.tsx <span style="color:var(--color-text-tertiary)">← Boot screen + Character select (index.html)</span></div>
+    <div style="padding-left:16px;color:var(--color-text-secondary)">onboarding/</div>
+    <div style="padding-left:32px;color:var(--color-text-secondary)">page.tsx <span style="color:var(--color-text-tertiary)">← 7-step wizard</span></div>
+    <div style="padding-left:16px;color:var(--color-text-secondary)">analysis/page.tsx <span style="color:var(--color-text-tertiary)">← AI analysis screen</span></div>
+    <div style="padding-left:16px;color:var(--color-text-secondary)">dashboard/</div>
+    <div style="padding-left:32px;color:var(--color-text-secondary)">layout.tsx <span style="color:var(--color-text-tertiary)">← Sidebar + topbar shell</span></div>
+    <div style="padding-left:32px;color:var(--color-text-secondary)">page.tsx <span style="color:var(--color-text-tertiary)">← Timeline (default view)</span></div>
+    <div style="padding-left:32px;color:var(--color-text-secondary)">scenarios/page.tsx</div>
+    <div style="padding-left:32px;color:var(--color-text-secondary)">financials/page.tsx</div>
+    <div style="padding-left:32px;color:var(--color-text-secondary)">action/page.tsx</div>
+    <div style="padding-left:32px;color:var(--color-text-secondary)">compare/page.tsx</div>
+    <div style="padding-left:32px;color:var(--color-text-secondary)">advisor/page.tsx <span style="color:var(--color-text-tertiary)">← NEW: AI chat view</span></div>
+    <div style="padding-left:16px;color:var(--color-text-secondary)">auth/</div>
+    <div style="padding-left:32px;color:var(--color-text-secondary)">login/page.tsx</div>
+    <div style="padding-left:32px;color:var(--color-text-secondary)">callback/page.tsx</div>
+    <div style="padding-left:16px;color:var(--color-text-secondary)">settings/page.tsx</div>
+    <div style="padding-left:16px;color:var(--color-text-secondary)">api/ <span style="color:var(--color-text-tertiary)">← All Route Handlers</span></div>
+  </div>
+
+  <div class="sh">Component hierarchy</div>
+  <div class="grid-2">
+    <div>
+      <div class="card">
+        <div class="card-title">Shared Components</div>
+        <div style="font-size:13px;color:var(--color-text-secondary);font-family:var(--font-mono);line-height:2">
+          HudInput / HudSelect / HudRange<br/>
+          BtnPrimary / BtnGhost / BtnDanger<br/>
+          StatBox / SectionTag / GlassCard<br/>
+          PageWipe / ParticleCanvas<br/>
+          SegBar / BracketBox
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">State — Zustand Store</div>
+        <div style="font-size:13px;color:var(--color-text-secondary);font-family:var(--font-mono);line-height:2">
+          useProfileStore → profile, setProfile<br/>
+          useScenarioStore → active, projections<br/>
+          useUIStore → view, sidebar open<br/>
+          useAuthStore → session, user tier
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="card">
+        <div class="card-title">Data Flow</div>
+        <div class="flow" style="flex-direction:column;align-items:flex-start">
+          <div class="flow-node">Wizard form inputs</div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-node">Zod validation</div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-node">POST /api/profiles</div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-node">DB save + AI projection queue</div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-node active">Dashboard renders from DB</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ BACKEND ═══════════════════ -->
+<div class="section" id="s-backend">
+  <div class="page-header">
+    <div class="page-tag">Architecture → Backend</div>
+    <div class="page-title">API Endpoint Spec</div>
+    <div class="page-desc">All 18 route handlers. RESTful design, auth-protected, Zod-validated inputs, typed Prisma responses.</div>
+  </div>
+
+  <div class="sh">Authentication</div>
+  <table class="tbl">
+    <tr><th>Method + Path</th><th>Auth</th><th>Description</th></tr>
+    <tr><td>POST /api/auth/signup</td><td><span class="badge">Public</span></td><td>Email + password signup. Returns session token.</td></tr>
+    <tr><td>POST /api/auth/login</td><td><span class="badge">Public</span></td><td>Credential or magic link login.</td></tr>
+    <tr><td>GET /api/auth/callback</td><td><span class="badge">Public</span></td><td>OAuth callback handler (Google, GitHub).</td></tr>
+    <tr><td>DELETE /api/auth/session</td><td><span class="badge blue">Auth</span></td><td>Logout — clears session cookie.</td></tr>
+  </table>
+
+  <div class="sh">Profile</div>
+  <table class="tbl">
+    <tr><th>Method + Path</th><th>Auth</th><th>Description</th></tr>
+    <tr><td>GET /api/profiles/me</td><td><span class="badge blue">Auth</span></td><td>Fetch current user's full profile.</td></tr>
+    <tr><td>POST /api/profiles</td><td><span class="badge blue">Auth</span></td><td>Create profile (wizard completion). Triggers AI projection job.</td></tr>
+    <tr><td>PATCH /api/profiles/me</td><td><span class="badge blue">Auth</span></td><td>Update any profile fields. Re-triggers projection if salary/savings changed.</td></tr>
+    <tr><td>DELETE /api/profiles/me</td><td><span class="badge blue">Auth</span></td><td>GDPR delete — removes profile + all projections + user account.</td></tr>
+  </table>
+
+  <div class="sh">Projections</div>
+  <table class="tbl">
+    <tr><th>Method + Path</th><th>Auth</th><th>Description</th></tr>
+    <tr><td>GET /api/projections</td><td><span class="badge blue">Auth</span></td><td>Fetch all 6 scenario projections for current profile. Returns cached result if &lt;24h old.</td></tr>
+    <tr><td>POST /api/projections/refresh</td><td><span class="badge blue">Auth</span></td><td>Force re-run AI engine on latest profile. Rate-limited: 3/day free, unlimited Pro.</td></tr>
+    <tr><td>GET /api/projections/:scenarioId</td><td><span class="badge blue">Auth</span></td><td>Single scenario detail with full yearly breakdown.</td></tr>
+  </table>
+
+  <div class="sh">Goals & Action Plans</div>
+  <table class="tbl">
+    <tr><th>Method + Path</th><th>Auth</th><th>Description</th></tr>
+    <tr><td>GET /api/action-plan/:scenarioId</td><td><span class="badge blue">Auth</span></td><td>Fetch month-by-month tasks for a scenario. AI-generated on first request.</td></tr>
+    <tr><td>PATCH /api/action-plan/tasks/:taskId</td><td><span class="badge blue">Auth</span></td><td>Mark task done/undone. Persisted to DB (not just DOM state).</td></tr>
+    <tr><td>POST /api/goals/custom</td><td><span class="badge green">Pro</span></td><td>Create a custom goal beyond the default 10. Pro tier only.</td></tr>
+  </table>
+
+  <div class="sh">AI Advisor</div>
+  <table class="tbl">
+    <tr><th>Method + Path</th><th>Auth</th><th>Description</th></tr>
+    <tr><td>POST /api/advisor/chat</td><td><span class="badge green">Pro</span></td><td>Streaming chat. Claude receives full user profile as context. Returns SSE stream.</td></tr>
+    <tr><td>GET /api/advisor/history</td><td><span class="badge green">Pro</span></td><td>Fetch past chat sessions for current user.</td></tr>
+  </table>
+
+  <div class="sh">Billing</div>
+  <table class="tbl">
+    <tr><th>Method + Path</th><th>Auth</th><th>Description</th></tr>
+    <tr><td>POST /api/billing/checkout</td><td><span class="badge blue">Auth</span></td><td>Create Razorpay checkout session for Pro tier.</td></tr>
+    <tr><td>POST /api/billing/webhook</td><td><span class="badge">Public (signed)</span></td><td>Razorpay webhook handler. Upgrades user tier on payment success.</td></tr>
+    <tr><td>DELETE /api/billing/subscription</td><td><span class="badge blue">Auth</span></td><td>Cancel Pro subscription.</td></tr>
+  </table>
+</div>
+
+<!-- ═══════════════════ DATABASE ═══════════════════ -->
+<div class="section" id="s-database">
+  <div class="page-header">
+    <div class="page-tag">Architecture → Database</div>
+    <div class="page-title">Prisma Schema — 12 Tables</div>
+    <div class="page-desc">PostgreSQL on Neon. Every table here maps to a Prisma model. Types shown are Prisma types (string, int, float, boolean, DateTime, Json).</div>
+  </div>
+
+  <div class="grid-2">
+    <div>
+      <div class="schema-table">
+        <div class="schema-header"><i class="ti ti-user" aria-hidden="true"></i>User</div>
+        <div class="schema-row"><div class="col-name"><span class="pk">PK</span>id</div><div class="col-type">String</div><div class="col-note">cuid()</div></div>
+        <div class="schema-row"><div class="col-name">email</div><div class="col-type">String</div><div class="col-note">unique</div></div>
+        <div class="schema-row"><div class="col-name">name</div><div class="col-type">String?</div><div class="col-note"></div></div>
+        <div class="schema-row"><div class="col-name">tier</div><div class="col-type">Enum</div><div class="col-note">FREE | PRO</div></div>
+        <div class="schema-row"><div class="col-name">createdAt</div><div class="col-type">DateTime</div><div class="col-note">default now()</div></div>
+        <div class="schema-row"><div class="col-name">updatedAt</div><div class="col-type">DateTime</div><div class="col-note">@updatedAt</div></div>
+      </div>
+
+      <div class="schema-table">
+        <div class="schema-header"><i class="ti ti-id-badge" aria-hidden="true"></i>Profile</div>
+        <div class="schema-row"><div class="col-name"><span class="pk">PK</span>id</div><div class="col-type">String</div><div class="col-note">cuid()</div></div>
+        <div class="schema-row"><div class="col-name"><span class="fk">FK</span>userId</div><div class="col-type">String</div><div class="col-note">unique → User</div></div>
+        <div class="schema-row"><div class="col-name">archetype</div><div class="col-type">Enum</div><div class="col-note">8 values</div></div>
+        <div class="schema-row"><div class="col-name">age</div><div class="col-type">Int</div><div class="col-note"></div></div>
+        <div class="schema-row"><div class="col-name">city</div><div class="col-type">String?</div><div class="col-note"></div></div>
+        <div class="schema-row"><div class="col-name">currentSalary</div><div class="col-type">Float</div><div class="col-note">annual INR</div></div>
+        <div class="schema-row"><div class="col-name">monthlySavings</div><div class="col-type">Float</div><div class="col-note"></div></div>
+        <div class="schema-row"><div class="col-name">bankBalance</div><div class="col-type">Float</div><div class="col-note"></div></div>
+        <div class="schema-row"><div class="col-name">investments</div><div class="col-type">Float</div><div class="col-note">MF + FD</div></div>
+        <div class="schema-row"><div class="col-name">monthlyEMI</div><div class="col-type">Float</div><div class="col-note"></div></div>
+        <div class="schema-row"><div class="col-name">riskProfile</div><div class="col-type">Enum</div><div class="col-note">3 values</div></div>
+        <div class="schema-row"><div class="col-name">goals</div><div class="col-type">String[]</div><div class="col-note">goal ids</div></div>
+        <div class="schema-row"><div class="col-name">context</div><div class="col-type">String?</div><div class="col-note">free text</div></div>
+        <div class="schema-row"><div class="col-name">clarityScore</div><div class="col-type">Int</div><div class="col-note">0-100</div></div>
+        <div class="schema-row"><div class="col-name">rawData</div><div class="col-type">Json</div><div class="col-note">full wizard dump</div></div>
+      </div>
+
+      <div class="schema-table">
+        <div class="schema-header"><i class="ti ti-target" aria-hidden="true"></i>Goal</div>
+        <div class="schema-row"><div class="col-name"><span class="pk">PK</span>id</div><div class="col-type">String</div><div class="col-note">cuid()</div></div>
+        <div class="schema-row"><div class="col-name"><span class="fk">FK</span>profileId</div><div class="col-type">String</div><div class="col-note">→ Profile</div></div>
+        <div class="schema-row"><div class="col-name">goalId</div><div class="col-type">String</div><div class="col-note">e.g. "home"</div></div>
+        <div class="schema-row"><div class="col-name">isPrimary</div><div class="col-type">Boolean</div><div class="col-note"></div></div>
+        <div class="schema-row"><div class="col-name">customLabel</div><div class="col-type">String?</div><div class="col-note">Pro: custom goals</div></div>
+        <div class="schema-row"><div class="col-name">targetCost</div><div class="col-type">Float?</div><div class="col-note">Pro override</div></div>
+        <div class="schema-row"><div class="col-name">completedAt</div><div class="col-type">DateTime?</div><div class="col-note">when user marks done</div></div>
+      </div>
+
+      <div class="schema-table">
+        <div class="schema-header"><i class="ti ti-chart-line" aria-hidden="true"></i>Projection</div>
+        <div class="schema-row"><div class="col-name"><span class="pk">PK</span>id</div><div class="col-type">String</div><div class="col-note">cuid()</div></div>
+        <div class="schema-row"><div class="col-name"><span class="fk">FK</span>profileId</div><div class="col-type">String</div><div class="col-note">→ Profile</div></div>
+        <div class="schema-row"><div class="col-name">scenarioId</div><div class="col-type">String</div><div class="col-note">e.g. "upskill_switch"</div></div>
+        <div class="schema-row"><div class="col-name">salaryData</div><div class="col-type">Json</div><div class="col-note">[]&#123;year,value,note&#125;</div></div>
+        <div class="schema-row"><div class="col-name">netWorthData</div><div class="col-type">Json</div><div class="col-note">[]&#123;year,value&#125;</div></div>
+        <div class="schema-row"><div class="col-name">goalWindows</div><div class="col-type">Json</div><div class="col-note">computed windows</div></div>
+        <div class="schema-row"><div class="col-name">aiRationale</div><div class="col-type">String?</div><div class="col-note">LLM explanation text</div></div>
+        <div class="schema-row"><div class="col-name">generatedAt</div><div class="col-type">DateTime</div><div class="col-note">for cache expiry</div></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="schema-table">
+        <div class="schema-header"><i class="ti ti-list-check" aria-hidden="true"></i>ActionPlan</div>
+        <div class="schema-row"><div class="col-name"><span class="pk">PK</span>id</div><div class="col-type">String</div><div class="col-note">cuid()</div></div>
+        <div class="schema-row"><div class="col-name"><span class="fk">FK</span>profileId</div><div class="col-type">String</div><div class="col-note">→ Profile</div></div>
+        <div class="schema-row"><div class="col-name">scenarioId</div><div class="col-type">String</div><div class="col-note"></div></div>
+        <div class="schema-row"><div class="col-name">months</div><div class="col-type">Json</div><div class="col-note">[]&#123;month,tasks[]&#125;</div></div>
+        <div class="schema-row"><div class="col-name">generatedAt</div><div class="col-type">DateTime</div><div class="col-note"></div></div>
+      </div>
+
+      <div class="schema-table">
+        <div class="schema-header"><i class="ti ti-checkbox" aria-hidden="true"></i>TaskCompletion</div>
+        <div class="schema-row"><div class="col-name"><span class="pk">PK</span>id</div><div class="col-type">String</div><div class="col-note">cuid()</div></div>
+        <div class="schema-row"><div class="col-name"><span class="fk">FK</span>profileId</div><div class="col-type">String</div><div class="col-note">→ Profile</div></div>
+        <div class="schema-row"><div class="col-name">scenarioId</div><div class="col-type">String</div><div class="col-note"></div></div>
+        <div class="schema-row"><div class="col-name">monthBlock</div><div class="col-type">String</div><div class="col-note">e.g. "1-2"</div></div>
+        <div class="schema-row"><div class="col-name">taskIndex</div><div class="col-type">Int</div><div class="col-note"></div></div>
+        <div class="schema-row"><div class="col-name">completedAt</div><div class="col-type">DateTime</div><div class="col-note"></div></div>
+      </div>
+
+      <div class="schema-table">
+        <div class="schema-header"><i class="ti ti-message-dots" aria-hidden="true"></i>AdvisorSession (Pro)</div>
+        <div class="schema-row"><div class="col-name"><span class="pk">PK</span>id</div><div class="col-type">String</div><div class="col-note">cuid()</div></div>
+        <div class="schema-row"><div class="col-name"><span class="fk">FK</span>userId</div><div class="col-type">String</div><div class="col-note">→ User</div></div>
+        <div class="schema-row"><div class="col-name">messages</div><div class="col-type">Json</div><div class="col-note">[]&#123;role,content&#125;</div></div>
+        <div class="schema-row"><div class="col-name">tokenCount</div><div class="col-type">Int</div><div class="col-note">for billing control</div></div>
+        <div class="schema-row"><div class="col-name">createdAt</div><div class="col-type">DateTime</div><div class="col-note"></div></div>
+      </div>
+
+      <div class="schema-table">
+        <div class="schema-header"><i class="ti ti-credit-card" aria-hidden="true"></i>Subscription</div>
+        <div class="schema-row"><div class="col-name"><span class="pk">PK</span>id</div><div class="col-type">String</div><div class="col-note">cuid()</div></div>
+        <div class="schema-row"><div class="col-name"><span class="fk">FK</span>userId</div><div class="col-type">String</div><div class="col-note">unique → User</div></div>
+        <div class="schema-row"><div class="col-name">razorpaySubId</div><div class="col-type">String</div><div class="col-note">external ID</div></div>
+        <div class="schema-row"><div class="col-name">status</div><div class="col-type">Enum</div><div class="col-note">ACTIVE|CANCELLED</div></div>
+        <div class="schema-row"><div class="col-name">currentPeriodEnd</div><div class="col-type">DateTime</div><div class="col-note">access expiry</div></div>
+      </div>
+
+      <div class="schema-table">
+        <div class="schema-header"><i class="ti ti-bell" aria-hidden="true"></i>Notification</div>
+        <div class="schema-row"><div class="col-name"><span class="pk">PK</span>id</div><div class="col-type">String</div><div class="col-note">cuid()</div></div>
+        <div class="schema-row"><div class="col-name"><span class="fk">FK</span>userId</div><div class="col-type">String</div><div class="col-note">→ User</div></div>
+        <div class="schema-row"><div class="col-name">type</div><div class="col-type">Enum</div><div class="col-note">GOAL|MILESTONE|ALERT</div></div>
+        <div class="schema-row"><div class="col-name">title</div><div class="col-type">String</div><div class="col-note"></div></div>
+        <div class="schema-row"><div class="col-name">body</div><div class="col-type">String</div><div class="col-note"></div></div>
+        <div class="schema-row"><div class="col-name">readAt</div><div class="col-type">DateTime?</div><div class="col-note">null = unread</div></div>
+      </div>
+
+      <div class="schema-table">
+        <div class="schema-header"><i class="ti ti-activity" aria-hidden="true"></i>FinancialSnapshot</div>
+        <div class="schema-row"><div class="col-name"><span class="pk">PK</span>id</div><div class="col-type">String</div><div class="col-note">cuid()</div></div>
+        <div class="schema-row"><div class="col-name"><span class="fk">FK</span>profileId</div><div class="col-type">String</div><div class="col-note">→ Profile</div></div>
+        <div class="schema-row"><div class="col-name">snapshotDate</div><div class="col-type">DateTime</div><div class="col-note">monthly capture</div></div>
+        <div class="schema-row"><div class="col-name">salary</div><div class="col-type">Float</div><div class="col-note"></div></div>
+        <div class="schema-row"><div class="col-name">savings</div><div class="col-type">Float</div><div class="col-note"></div></div>
+        <div class="schema-row"><div class="col-name">netWorth</div><div class="col-type">Float</div><div class="col-note">computed total</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ AI LAYER ═══════════════════ -->
+<div class="section" id="s-ai">
+  <div class="page-header">
+    <div class="page-tag">Architecture → AI</div>
+    <div class="page-title">AI Layer Design</div>
+    <div class="page-desc">Replace hard-coded scenario modifiers with a real reasoning engine. Every AI call has a specific prompt structure, caching strategy, and fallback.</div>
+  </div>
+
+  <div class="sh">AI call map</div>
+  <table class="tbl">
+    <tr><th>Feature</th><th>Model</th><th>Trigger</th><th>Caching</th></tr>
+    <tr><td>Scenario projections</td><td><span class="badge red">Claude Sonnet</span></td><td>Profile save / manual refresh</td><td>24h Redis, invalidated on profile change</td></tr>
+    <tr><td>Action plan generation</td><td><span class="badge red">Claude Sonnet</span></td><td>First view of action plan page</td><td>7 days or until scenario changes</td></tr>
+    <tr><td>Smart recommendations</td><td><span class="badge red">Claude Sonnet</span></td><td>Dashboard load, weekly cron</td><td>12h Redis</td></tr>
+    <tr><td>AI Advisor chat</td><td><span class="badge red">Claude Sonnet</span></td><td>User message (Pro only)</td><td>No cache — streamed live</td></tr>
+    <tr><td>Goal window text</td><td><span class="badge">GPT-4o-mini</span></td><td>Projection complete</td><td>Stored in DB with projection</td></tr>
+    <tr><td>Onboarding context summary</td><td><span class="badge">GPT-4o-mini</span></td><td>Wizard completion</td><td>Stored in Profile.rawData</td></tr>
+  </table>
+
+  <div class="sh">Projection prompt structure</div>
+  <div class="card" style="font-family:var(--font-mono);font-size:12px;line-height:1.8;color:var(--color-text-secondary)">
+    <div style="color:var(--color-text-tertiary);margin-bottom:8px">// System prompt injected once per session</div>
+    You are a financial life planning AI for Indian professionals. You receive a user's complete financial and career profile and must return structured JSON projections for 6 life scenarios over a 10-year horizon. You reason like a CFP (Certified Financial Planner) combined with a career strategist familiar with the Indian job market, salary bands by city, and investment instruments (SIP, PPF, NPS, FD). Your projections must be realistic and contextual — not generic multipliers.
+    <div style="margin-top:12px;color:var(--color-text-tertiary)">// User message</div>
+    Profile: &#123;JSON.stringify(profile)&#125;<br/>
+    City salary benchmarks: &#123;cityData[profile.city]&#125;<br/>
+    Industry growth rates: &#123;industryData[profile.industry]&#125;<br/><br/>
+    Return ONLY valid JSON matching the ProjectionResponse schema. No prose.
+  </div>
+
+  <div class="sh">Advisor chat context injection</div>
+  <div class="card" style="font-family:var(--font-mono);font-size:12px;line-height:1.8;color:var(--color-text-secondary)">
+    <div style="color:var(--color-text-tertiary);margin-bottom:8px">// System prompt for advisor chat</div>
+    You are ArshMind Advisor — a personal financial and career strategist. The user's full profile, all their projections, and their selected life path are injected below. When they ask questions, reason specifically from their data. Never give generic advice. If their question is about a number, cite the specific projection value. If they describe a new idea (e.g. moving to Hyderabad, taking a sabbatical), model what that would do to their trajectory using the same logic as the projection engine.<br/><br/>
+    User profile: &#123;profile&#125;<br/>
+    Active scenario: &#123;activeScenario&#125;<br/>
+    5yr projection: &#123;projections[activeScenario].netWorth[year5]&#125;
+  </div>
+</div>
+
+<!-- ═══════════════════ PR FLOW ═══════════════════ -->
+<div class="section" id="s-prs">
+  <div class="page-header">
+    <div class="page-tag">Build Plan</div>
+    <div class="page-title">28 Feature PRs — Full Flow</div>
+    <div class="page-desc">Each PR is a shippable unit. Sorted into 4 phases. Every PR title is a git branch name pattern. Click any PR to see its files and acceptance criteria.</div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('ph1',this)">Phase 1 — Foundation</button>
+    <button class="tab" onclick="switchTab('ph2',this)">Phase 2 — Core Features</button>
+    <button class="tab" onclick="switchTab('ph3',this)">Phase 3 — AI & Pro</button>
+    <button class="tab" onclick="switchTab('ph4',this)">Phase 4 — Growth</button>
+  </div>
+
+  <div id="ph1">
+    <div style="font-size:13px;color:var(--color-text-secondary);margin-bottom:1rem">Project scaffolding, auth, DB, and migrating existing screens into the new stack.</div>
+    ${makePR('PR-01','feat/project-scaffold','Project scaffold — Next.js + TypeScript + Tailwind','blue','P1','Set up Next.js 14 App Router project. Configure TypeScript, Tailwind with existing design tokens, ESLint, Prettier. Add Prisma with Neon DB connection. Set up GitHub Actions CI.','app/layout.tsx, tailwind.config.ts, prisma/schema.prisma, .github/workflows/ci.yml','1h')}
+    ${makePR('PR-02','feat/auth-setup','Authentication — NextAuth + Google OAuth + Magic Link','blue','P1','Add NextAuth v5. Configure Google OAuth provider. Add email magic link via Resend. Protect dashboard route. Create User + Account tables in Prisma.','app/auth/, app/api/auth/, prisma/schema.prisma (User model), lib/auth.ts','2h')}
+    ${makePR('PR-03','feat/migrate-character-select','Migrate character select screen','blue','P1','Port index.html boot screen + character select to Next.js. Replace window.ARCHETYPES with typed import from data/archetypes.ts. Replace vanilla JS with React state. Add page wipe transition via Framer Motion.','app/page.tsx, components/CharacterGrid.tsx, data/archetypes.ts','3h')}
+    ${makePR('PR-04','feat/migrate-wizard','Migrate 7-step onboarding wizard','blue','P1','Port all 7 wizard steps to React. Use React Hook Form + Zod. Replace hud-input/select/range with React components. Add mobile pill rail. On submit: POST /api/profiles.','app/onboarding/page.tsx, components/wizard/, lib/schemas/profile.ts','5h')}
+    ${makePR('PR-05','feat/profile-api','Profile CRUD API','blue','P1','Route handlers: GET/POST/PATCH/DELETE /api/profiles. Zod validation. Prisma writes. Auth guard. Trigger projection job on create/update.','app/api/profiles/, lib/db/profile.ts','2h')}
+    ${makePR('PR-06','feat/migrate-dashboard-shell','Dashboard layout shell','blue','P1','Port sidebar + topbar + view switching to Next.js layout. Zustand store for activeView and sidebarOpen. Mobile hamburger + bottom nav. All views render empty placeholders.','app/dashboard/layout.tsx, store/ui.ts, components/Sidebar.tsx','3h')}
+  </div>
+
+  <div id="ph2" style="display:none">
+    <div style="font-size:13px;color:var(--color-text-secondary);margin-bottom:1rem">All 5 dashboard views functional with real DB data and React charts.</div>
+    ${makePR('PR-07','feat/projections-engine','Server-side projection engine','amber','P1','Port ENGINE.js to TypeScript server module. Add unit tests for calculateProjection(). Create Projection table. API: GET /api/projections + POST /api/projections/refresh.','lib/engine/projections.ts, app/api/projections/, __tests__/engine.test.ts','4h')}
+    ${makePR('PR-08','feat/timeline-view','Timeline view — real data','amber','P1','Port timeline view. Replace hardcoded milestone text with data from Projection DB record. Goal windows read from DB. Animate milestone cards with Framer Motion stagger.','app/dashboard/page.tsx, components/timeline/, components/GoalWindows.tsx','3h')}
+    ${makePR('PR-09','feat/scenarios-view','Scenarios view — real data','amber','P1','Port 6 scenario cards + detail panel. Active scenario stored in Zustand + synced to DB via PATCH /api/profiles. Scenario change triggers optimistic UI update.','app/dashboard/scenarios/, store/scenario.ts','3h')}
+    ${makePR('PR-10','feat/recharts-migration','Migrate charts to Recharts','amber','P2','Replace 3 custom canvas charts with Recharts: ResponsiveLineChart (financials), RadarChart (compare), BarChart (savings). Match existing colors from design tokens. DPI-aware via ResponsiveContainer.','app/dashboard/financials/, app/dashboard/compare/, components/charts/','4h')}
+    ${makePR('PR-11','feat/financials-view','Financials view — interactive sliders','amber','P1','Port fin-controls sliders. Slider change updates Zustand store → re-fetches /api/projections with new params. Add fin-legend. Debounce API calls (300ms).','app/dashboard/financials/page.tsx, store/financials.ts','2h')}
+    ${makePR('PR-12','feat/action-plan-view','Action plan — persistent task state','amber','P1','Port action plan month blocks. Task checkbox state persisted to DB via PATCH /api/action-plan/tasks/:id (not just DOM). Task completion history stored in TaskCompletion table.','app/dashboard/action/, app/api/action-plan/','3h')}
+    ${makePR('PR-13','feat/compare-view','Compare paths view','amber','P2','Port compare dropdowns + stats grid + radar chart. All values read from allProjections in Zustand (loaded from DB on dashboard mount). Radar chart via Recharts PolarGrid.','app/dashboard/compare/page.tsx','2h')}
+    ${makePR('PR-14','feat/analysis-screen','AI analysis screen — real loading','amber','P1','Port analysis animation screen. Instead of a fixed 5s timer, poll GET /api/projections until status = complete. Real progress bars reflect actual AI job progress via SSE.','app/analysis/page.tsx, app/api/projections/status/','2h')}
+  </div>
+
+  <div id="ph3" style="display:none">
+    <div style="font-size:13px;color:var(--color-text-secondary);margin-bottom:1rem">Replace rule-based engine with Claude, add Pro tier, advisor chat, notifications.</div>
+    ${makePR('PR-15','feat/ai-projections','AI-powered projections via Claude','red','P1','Replace deterministic ENGINE with Claude call. Prompt: profile + city salary data → JSON ProjectionResponse. Vercel AI SDK for structured output. Cache in Redis 24h. Fallback to rule engine if API fails.','lib/ai/projections.ts, app/api/projections/route.ts, lib/cache/redis.ts','6h')}
+    ${makePR('PR-16','feat/ai-action-plan','AI-generated action plans','red','P2','Replace hardcoded plans object with Claude call. Prompt: profile + selected scenario → month-block JSON. Store in ActionPlan table. Regenerate on scenario change.','lib/ai/actionPlan.ts, app/api/action-plan/','3h')}
+    ${makePR('PR-17','feat/ai-recommendations','AI smart recommendations','red','P2','Replace rule-based generateRecommendations() with Claude. Input: full profile + all projections. Output: structured rec cards. Run on dashboard load + nightly cron via Inngest.','lib/ai/recommendations.ts, lib/jobs/weeklyRecs.ts','3h')}
+    ${makePR('PR-18','feat/billing-razorpay','Razorpay Pro subscription','red','P1','Add Subscription table. Route handlers: POST /api/billing/checkout, webhook handler. Webhook upgrades User.tier to PRO. Add FeatureGate component to wrap Pro-only UI.','app/api/billing/, components/FeatureGate.tsx, prisma/schema.prisma','4h')}
+    ${makePR('PR-19','feat/advisor-chat','AI Advisor chat (Pro)','red','P1','New dashboard view: /dashboard/advisor. Chat UI with message history. POST /api/advisor/chat → streaming Claude response via Vercel AI SDK useChat. System prompt injects full profile + projections. Store sessions in AdvisorSession table.','app/dashboard/advisor/, app/api/advisor/, components/AdvisorChat.tsx','5h')}
+    ${makePR('PR-20','feat/notifications','Milestone notifications','red','P2','Inngest background job: nightly check if any goal window has opened. If yes, create Notification row + send email via Resend. Add notification bell to topbar with unread count. Mark read on click.','lib/jobs/milestoneCheck.ts, components/NotificationBell.tsx, app/api/notifications/','4h')}
+    ${makePR('PR-21','feat/pdf-export','PDF export (Pro)','red','P3','Generate PDF snapshot of dashboard using @react-pdf/renderer. Upload to Cloudflare R2. Return signed URL. Pro-gated button in topbar.','lib/pdf/dashboardReport.tsx, app/api/export/pdf/','3h')}
+  </div>
+
+  <div id="ph4" style="display:none">
+    <div style="font-size:13px;color:var(--color-text-secondary);margin-bottom:1rem">Retention, social proof, financial sync, and SEO-driven acquisition.</div>
+    ${makePR('PR-22','feat/net-worth-tracker','Monthly net worth tracker','green','P2','Inngest monthly cron captures FinancialSnapshot for each active user. New dashboard widget: net worth over time as a sparkline. Compare actual vs projected.','lib/jobs/monthlySnapshot.ts, components/NetWorthTracker.tsx','3h')}
+    ${makePR('PR-23','feat/cohort-benchmarks','Peer cohort benchmarks','green','P2','Anonymized aggregate stats by archetype + city + experience band. "Doctors in Bangalore with 3yr exp save ₹X on average." Query via Postgres window functions. Display as contextual callouts in financials view.','lib/analytics/cohorts.ts, app/api/benchmarks/','4h')}
+    ${makePR('PR-24','feat/weekly-digest','Weekly email digest','green','P3','Inngest weekly cron: generate personalized digest (progress on tasks, net worth change, upcoming goal windows). Send via Resend. Unsubscribe link. User preference toggle in settings.','lib/jobs/weeklyDigest.ts, emails/WeeklyDigest.tsx','3h')}
+    ${makePR('PR-25','feat/settings-page','Settings page','green','P2','User profile edit, notification preferences, danger zone (delete account + GDPR export), billing portal link, connected accounts.','app/settings/page.tsx, app/api/settings/','2h')}
+    ${makePR('PR-26','feat/custom-goals','Custom goals (Pro)','green','P3','Pro users can define custom goals beyond the default 10. Name, cost, target date. Stored in Goal table. Projection engine factors custom goals into goal windows.','app/dashboard/action/ (custom goal modal), app/api/goals/custom/','2h')}
+    ${makePR('PR-27','feat/seo-landing','SEO landing page','green','P3','Marketing landing page at / (app currently starts with boot screen — split into / (landing) and /app for the actual tool). Archetype teaser cards, social proof, pricing table. Server-rendered for SEO.','app/(marketing)/page.tsx, app/(marketing)/pricing/','4h')}
+    ${makePR('PR-28','feat/share-results','Shareable result card','green','P3','Generate a shareable OG image card: archetype, clarity score, top goal window. Dynamic OG image via Vercel/og. Share button in dashboard topbar.','app/api/og/, components/ShareCard.tsx','2h')}
+  </div>
+</div>
+
+<!-- ═══════════════════ PROMPTS ═══════════════════ -->
+<div class="section" id="s-prompts">
+  <div class="page-header">
+    <div class="page-tag">Build Plan</div>
+    <div class="page-title">AI Coding Prompts</div>
+    <div class="page-desc">Copy-paste prompts for each major feature. Each prompt includes full context so the AI can generate production-ready code without needing to re-read the codebase.</div>
+  </div>
+
+  <div class="sh">Scaffold + Auth</div>
+  ${makePrompt('PR-01 + PR-02 — Project setup + Auth',`Create a Next.js 14 App Router project with TypeScript and Tailwind CSS for a product called ArshMind (a life planning web app with a COD/military HUD aesthetic — dark backgrounds, monospace fonts, green #00ff9d accent).
+
+Tailwind config: extend theme with these tokens:
+  colors: { green: '#00ff9d', gold: '#ffd700', teal: '#4ecdc4', purple: '#a29bfe', pink: '#fd79a8', red: '#ff4444', bg: '#020408', bg2: '#080d12' }
+  fontFamily: { mono: ['JetBrains Mono', 'monospace'], head: ['Orbitron', 'sans-serif'], body: ['Outfit', 'sans-serif'] }
+
+Set up Prisma with the following User model (more tables will be added in later PRs):
+  model User { id String @id @default(cuid()); email String @unique; name String?; tier Tier @default(FREE); createdAt DateTime @default(now()); updatedAt DateTime @updatedAt }
+  enum Tier { FREE PRO }
+
+Configure NextAuth v5 with:
+  - GoogleProvider (env: GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET)
+  - Email magic link provider via Resend (env: RESEND_API_KEY, EMAIL_FROM)
+  - Session strategy: database
+  - Prisma adapter
+
+Protect the /dashboard route — redirect to /auth/login if no session.`)}
+
+  <div class="sh">Wizard Migration</div>
+  ${makePrompt('PR-04 — 7-Step Wizard with React Hook Form',`Convert the 7-step onboarding wizard from vanilla HTML/JS to React with Next.js App Router.
+
+The wizard collects: name, age, city, education, marital status (step 1), job title, experience, salary (slider ₹1L–₹50L), industry, employment type (step 2), bank balance, monthly savings, investments, income, expenses (step 3), owned assets toggle grid (bike/car/property/gold/business/land/stocks/crypto) + loan checkboxes + EMI (step 4), goals multi-select from 10 options (step 5), risk slider 0-2 (step 6), dependents, location flexibility, commitments, urgency, context textarea (step 7).
+
+Use React Hook Form with a Zod schema (lib/schemas/profile.ts) that validates all 7 steps. On final step submit, POST to /api/profiles. Show the AI analysis screen (/analysis) while the job runs.
+
+Use Framer Motion for step transitions (diagReveal-style: clip-path polygon wipe).
+
+Include the mobile sticky pill rail from the existing base.css mobile styles — port it as a React component <MobileStepRail currentStep={n} totalSteps={7} />.
+
+Maintain exact visual fidelity to the existing css/character.css styles.`)}
+
+  <div class="sh">AI Projections</div>
+  ${makePrompt('PR-15 — Claude-Powered Projection Engine',`Replace the deterministic ENGINE.calculateProjection() function with a Claude API call.
+
+Current ENGINE.js is at js/engine.js in the codebase (content provided below). It takes a profile object and scenarioId and returns { salary[], netWorth[], goalWindows[] }.
+
+New implementation (lib/ai/projections.ts):
+1. Build a system prompt: "You are a financial life planning AI for Indian professionals..." (full prompt in docs)
+2. Send the profile + SCENARIOS[scenarioId] data to Claude claude-sonnet-4-20250514 using the Anthropic SDK with tool_use to force structured JSON output
+3. The response schema is: { salary: [{year,value,note}], netWorth: [{year,value}], goalWindows: [{goalId,label,window,likelihood}], aiRationale: string }
+4. Cache the result in Upstash Redis with key projection:{profileId}:{scenarioId} TTL 24h
+5. If the Claude call fails, fall back to the deterministic engine from engine.js
+
+Also create the Inngest background function (lib/jobs/generateProjections.ts) that runs calculateAllScenarios() for all 6 scenarios in parallel after wizard completion.
+
+Zod schemas for all inputs/outputs. Full TypeScript types. Error handling with Sentry.`)}
+
+  <div class="sh">Advisor Chat (Pro)</div>
+  ${makePrompt('PR-19 — AI Advisor Chat with Streaming',`Build the AI Advisor chat feature (Pro tier only) as a new dashboard view at /dashboard/advisor.
+
+System prompt: inject the user's full profile, active scenario, and 5-year projection numbers. The AI answers career and financial questions with specific, data-grounded responses (not generic advice).
+
+Use Vercel AI SDK useChat hook. Stream responses from POST /api/advisor/chat using Claude claude-sonnet-4-20250514 with streaming enabled.
+
+The chat UI should match the ArshMind HUD aesthetic:
+- Dark background, green accent, monospace font for assistant messages
+- User messages right-aligned with subtle teal border
+- Typing indicator: 3 pulsing dots
+- Session history loaded from GET /api/advisor/history (AdvisorSession table)
+- FeatureGate component shows upgrade prompt if user.tier !== PRO
+
+Rate limit: 50 messages/month on Pro using Upstash Redis counter.
+Store full conversation in AdvisorSession.messages (JSON array).`)}
+
+  <div class="sh">Database Schema</div>
+  ${makePrompt('Prisma Schema — All 12 Tables',`Generate the complete Prisma schema for ArshMind with these 12 models. Use PostgreSQL. Use cuid() for all IDs.
+
+Models: User (id, email, name, tier enum FREE/PRO, createdAt, updatedAt), Profile (id, userId unique FK, archetype enum 8 vals, age, city, currentSalary float, monthlySavings, bankBalance, investments, monthlyEMI, riskProfile enum 3 vals, goals String[], context, clarityScore int, rawData Json, createdAt, updatedAt), Goal (id, profileId FK, goalId, isPrimary bool, customLabel optional, targetCost optional float, completedAt optional datetime), Projection (id, profileId FK, scenarioId, salaryData Json, netWorthData Json, goalWindows Json, aiRationale optional string, generatedAt datetime), ActionPlan (id, profileId FK, scenarioId, months Json, generatedAt), TaskCompletion (id, profileId FK, scenarioId, monthBlock string, taskIndex int, completedAt, @@unique([profileId,scenarioId,monthBlock,taskIndex])), AdvisorSession (id, userId FK, messages Json, tokenCount int default 0, createdAt), Subscription (id, userId unique FK, razorpaySubId, status enum ACTIVE/CANCELLED/PAST_DUE, currentPeriodEnd datetime, createdAt), Notification (id, userId FK, type enum GOAL/MILESTONE/ALERT/DIGEST, title, body, readAt optional, createdAt), FinancialSnapshot (id, profileId FK, snapshotDate datetime, salary float, savings float, investments float, netWorth float).
+
+Include all relations, indexes on userId/profileId FKs, and @@unique constraints where relevant. Generate the migration SQL as well.`)}
+</div>
+
+<!-- ═══════════════════ PHASES ═══════════════════ -->
+<div class="section" id="s-phases">
+  <div class="page-header">
+    <div class="page-tag">Build Plan</div>
+    <div class="page-title">4-Phase Delivery Timeline</div>
+    <div class="page-desc">Each phase ends with a shippable, demo-able product. Phases are ordered by user value delivered, not by technical complexity.</div>
+  </div>
+
+  <div class="sh">Phase 1 — Foundation (PRs 01–06) · Est. 3–4 weeks</div>
+  <div class="card">
+    <div class="card-title"><span class="badge green">Shippable</span> Auth + profile save + dashboard skeleton</div>
+    <div class="card-desc">Users can sign up, complete the wizard, and see the dashboard with data loaded from the database. All 5 views visible but financials/compare use static data. Replaces localStorage with real persistence. This is the "it works" milestone.</div>
+    <div class="tag-row">
+      <span class="badge">Next.js scaffold</span><span class="badge">PostgreSQL live</span><span class="badge">Auth working</span><span class="badge">Wizard saves to DB</span><span class="badge">Dashboard renders</span>
+    </div>
+  </div>
+
+  <div class="sh">Phase 2 — Core Features (PRs 07–14) · Est. 4–5 weeks</div>
+  <div class="card">
+    <div class="card-title"><span class="badge green">Shippable</span> Full dashboard working with server projection engine</div>
+    <div class="card-desc">All 5 dashboard views functional with real DB data. Rule-based projection engine running server-side. Recharts replacing canvas charts. Task completion persisted. Analysis screen shows real job progress. Ready for first external users.</div>
+    <div class="tag-row">
+      <span class="badge">All 5 views live</span><span class="badge">Projection engine on server</span><span class="badge">Tasks persistent</span><span class="badge">Real charts</span>
+    </div>
+  </div>
+
+  <div class="sh">Phase 3 — AI + Pro Tier (PRs 15–21) · Est. 4–5 weeks</div>
+  <div class="card">
+    <div class="card-title"><span class="badge green">Shippable</span> Claude-powered engine + Razorpay billing + Advisor chat</div>
+    <div class="card-desc">Replace deterministic projections with Claude. Pro subscription unlocks Advisor chat, PDF export, custom goals. Billing fully operational. This is the monetization milestone — ready to charge users.</div>
+    <div class="tag-row">
+      <span class="badge">Claude projections</span><span class="badge">Razorpay working</span><span class="badge">Advisor chat live</span><span class="badge">PDF export</span><span class="badge">Notifications</span>
+    </div>
+  </div>
+
+  <div class="sh">Phase 4 — Growth (PRs 22–28) · Est. 3–4 weeks</div>
+  <div class="card">
+    <div class="card-title"><span class="badge green">Shippable</span> Retention features + SEO + social sharing</div>
+    <div class="card-desc">Monthly net worth tracker, peer cohort benchmarks, weekly email digest, shareable result cards, SEO landing page. Transforms the product from a one-time tool into a habit-forming financial companion.</div>
+    <div class="tag-row">
+      <span class="badge">Net worth tracking</span><span class="badge">Cohort benchmarks</span><span class="badge">Weekly digest</span><span class="badge">SEO landing</span><span class="badge">Share cards</span>
+    </div>
+  </div>
+
+  <div class="sh">Full timeline estimate</div>
+  <div class="grid-4">
+    <div class="metric"><div class="metric-val">14–16 wks</div><div class="metric-label">Solo developer</div></div>
+    <div class="metric"><div class="metric-val">6–8 wks</div><div class="metric-label">2-person team</div></div>
+    <div class="metric"><div class="metric-val">~₹0</div><div class="metric-label">Infra cost, 0 users</div></div>
+    <div class="metric"><div class="metric-val">~₹4K/mo</div><div class="metric-label">Infra at 1K users</div></div>
+  </div>
+</div>
+
+</div><!-- /main -->
+</div><!-- /root -->
+
+<script>
+function show(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('s-'+id).classList.add('active');
+  btn.classList.add('active');
+}
+
+function switchTab(id, btn) {
+  ['ph1','ph2','ph3','ph4'].forEach(p => { const el = document.getElementById(p); if(el) el.style.display = 'none'; });
+  document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).style.display = 'block';
+  btn.classList.add('active');
+}
+
+function toggleExpand(btn) {
+  const exp = btn.nextElementSibling;
+  exp.classList.toggle('open');
+  btn.textContent = exp.classList.contains('open') ? '▲ hide files' : '▼ show files & criteria';
+}
+
+function makePR(id, branch, title, color, priority, desc, files, est) {
+  const pColor = priority === 'P1' ? 'p1' : priority === 'P2' ? 'p2' : 'p3';
+  return `<div class="pr-card">
+    <div class="pr-header">
+      <div>
+        <div class="pr-title">${id} — ${title}</div>
+        <div class="pr-meta">
+          <span class="badge ${color}">${branch}</span>
+          <span class="badge ${pColor}">${priority}</span>
+          <span class="badge">~${est}</span>
+        </div>
+      </div>
+    </div>
+    <div class="pr-body">${desc}</div>
+    <button class="expand-btn" onclick="toggleExpand(this)">▼ show files & criteria</button>
+    <div class="expandable">
+      <div style="margin-bottom:8px;font-size:12px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.04em">Files touched</div>
+      <div class="pr-files">${files.split(', ').join('\n')}</div>
+      <div style="margin-top:10px;font-size:12px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.04em">Acceptance criteria</div>
+      <div style="font-size:12px;color:var(--color-text-secondary);margin-top:4px;line-height:1.7">All CI checks pass · Zod validation on all inputs · TypeScript strict mode no errors · Manual smoke test on mobile viewport · PR description includes before/after screenshots</div>
+    </div>
+  </div>`;
+}
+
+function makePrompt(title, body) {
+  return `<div class="prompt-box">
+    <div class="prompt-label">${title}</div>
+    <div class="prompt-body">${body}</div>
+    <div class="prompt-copy"><button onclick="navigator.clipboard.writeText(this.closest('.prompt-box').querySelector('.prompt-body').textContent.trim()).then(()=>{this.textContent='Copied!';setTimeout(()=>this.textContent='Copy prompt',1500)})">Copy prompt</button></div>
+  </div>`;
+}
+</script>
+</body>
+</html>
